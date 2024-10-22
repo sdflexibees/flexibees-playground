@@ -1,0 +1,12 @@
+NOTIFY_INTERVAL = [1, 3, 5, 7]
+MAX_DAYS_FOR_TOKEN = 7
+REQUEST_INDEX = 0
+HTTPS = 'https'
+IMAGE_DIRECTORY = 'Images'
+EMPLOYER_ALLOWED_IMAGE_EXTENSIONS = ['jpeg', 'jpg', 'png', 'webp']
+EMPLOYER_ALLOWED_ATTACHMENT_EXTENSIONS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv',]
+EMPLOYER_LOGIN_DAYS = 90
+MAX_DAYS_YEAR = 365.25  # 365.25 accounts for leap years
+WEB = 'web'
+IOS = 'ios'
+PROXY_ERROR_MESSAGE = "Service is temporarily unavailable. Please try again later."

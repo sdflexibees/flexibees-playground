@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<td style="padding: 55px 70px;">
+    <p style="padding-bottom: 0px; margin: 0;font-size: 31px;font-weight:700">Hi {{ first_name }},</p>
+    {% if role == "bd" %}
+    <p style="padding-bottom: 20px; margin: 0;font-size: 31px;font-weight:700">You can now login as a BD</p>
+    {% elif role == "recruiter" %}
+    <p style="padding-bottom: 20px; margin: 0;font-size: 31px;font-weight:700">You can now login as a Recruiter</p>
+    {% elif role == "admin" %}
+    <p style="padding-bottom: 20px; margin: 0;font-size: 31px;font-weight:700">You can now login as a Recruiter Admin</p>
+    {% else %}
+    <p style="padding-bottom: 20px; margin: 0;font-size: 31px;font-weight:700">You can now login as a Super Admin</p>
+    {% endif %}
+<!--    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Reset your password using the link below.</p>-->
+    <a target="_blank" href="https://{{ frontend_url }}" style="margin-bottom: 20px;display: inline-block;background:#F8B817;border-radius: 3px;color: #000;padding: 12px 30px;font-size: 14px;;text-decoration: none;">
+        Go to Login
+    </a>
+</td>
+{% endblock content %}

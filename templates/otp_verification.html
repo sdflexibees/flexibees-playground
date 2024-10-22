@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Otp Verification</title>
+</head>
+<td style="padding: 55px 70px;">
+    <p style="padding-bottom: 0px; margin: 0;font-size: 31px;font-weight:700">Hi {{ username }},</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Your OTP Verification code is {{ otp }}. Please use this to verify your email for FlexiBees. Do not share your OTP with anyone.</p><br>
+    <p>Thanks,</p>
+    <p>FlexiBees Team</p>
+</td>
+{% endblock content %}

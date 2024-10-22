@@ -1,0 +1,9 @@
+{
+    "domain": 0.1,
+    "role": 0.1,
+    "skills": 0.3,
+    "total_available_hours": 0.05,
+    "functional_interview": 0.1,
+    "recency": 0.1,
+    "experience": 0.1
+}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Email Change</title>
+</head>
+<tr style="background-color: #fff;border: 1px solid #eeeeee;border-bottom: 1px solid #fff;">
+    <td style="padding: 55px 70px;">
+    <p style="padding-bottom: 20px; margin: 0;font-size: 31px;font-weight:700">Dear {{ username }},</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Greetings from FlexiBees!!!</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Email id change request has been initiated by FlexiBees. If it’s not requested by you then reach out to <a style="color:#F8B817" href="mailto:support@flexibees.com">support@flexibees.com</a> immediately.</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">For verification, an OTP will be triggered to your registered mobile number.</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Please click <a clicktracking=off href={{link}} universal="true">here</a> to proceed with further verification for getting your email id updated in FlexiBees. This link will be valid only for 24 hours.</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Thanks and Best Regards,</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Team FlexiBees</p>
+    </td>
+    </tr>
+    <tr
+    style="background-color: #fff;border: 1px solid #eeeeee;border-bottom: 1px solid #efefef;border-top: 1px solid #fff;">
+    <td></td>
+    </tr>
+    {% endblock content %}
+    
+    

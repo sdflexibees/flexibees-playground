@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Help & Support</title>
+</head>
+<body>
+    <p style="color:black; padding-bottom: 0px; margin: 0;font-size: 15px;font-weight:200">From {{ username }},</p>
+    <p style="color:black; padding-bottom: 0px; margin: 0;font-size: 15px;font-weight:10">Looking for support with {{message}}</p>
+    {% if email and phone %}
+        <p style="color:black; padding-bottom: 0px; margin: 0;font-size: 15px;font-weight:10">Contact Details: Email- {{email}}, Phone- +{{country_code}} {{phone}}. </p>
+    {% elif email %}
+        <p style="color:black; padding-bottom: 0px; margin: 0;font-size: 15px;font-weight:10">Contact Details: Email- {{email}}.</p>
+    {% else %}
+        <p style="color:black; padding-bottom: 0px; margin: 0;font-size: 15px;font-weight:10">Contact Details: Phone- +{{country_code}} {{phone}}.</p>
+    {% endif %}
+</body>
+</html>

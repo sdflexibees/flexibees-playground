@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>You have been shortlisted for a flexible role - {{role}}</title>
+</head>
+<td style="padding: 55px 70px;">
+    <p style="padding-bottom: 20px; margin: 0;font-size: 31px;font-weight:700">Dear {{ username }},</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Greetings from FlexiBees!!!</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Congratulations! We have shortlisted your profile for an immediate requirement for one of our projects</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Please find the important details of the role below</p>
+    <div style="display:flex;align-items: center; padding-bottom: 20px; border-bottom: 1px solid gray;">
+        <div style="width: 55px; height: 40px;">
+            <p style=" margin: 0; background-color: #FFF3D8;display: flex;align-items: center;justify-content: center; border-radius: 50%;">
+                <img src="https://flexibees-dev.s3.ap-south-1.amazonaws.com/office%402x.png" alt="" style=" width: 38px;height:26px;padding: 15px 10px;border-radius: 50%;">
+            </p>
+        </div>
+        <div style=" margin-left: 16px;">
+        <div style=" font-size: 16px;font-weight: 500;text-transform: capitalize;"> {{project_name}} </div>
+        <div style=" color:  grey;font-size: 14px;text-transform: capitalize;margin-top: 4px;"> {{role}}</div>
+        </div>
+    </div>
+    <table style="margin-bottom: 20px; width: 100%;">
+        <tr style="font-size: 11px; color: #888888;">
+            <td style=" padding-top: 10px;">Function</td>
+            <td style=" padding-top: 10px;" class="experience">Experience</td>
+            <td style=" padding-top: 10px;" class="experience">Working Hours</td>
+        </tr>
+        <tr style="font-size: 12px; color:#444444; font-weight: 700;">
+            <td>{{function}}</td>
+            <td class="experience">{{min_experience_needed}} - {{max_experience_needed}}</td>
+            <td class="experience">{{min_working_hours}} - {{max_working_hours}} in a day</td>
+        </tr>
+        <tr style="font-size: 11px; color: #888888;">
+            <td style="padding-top:15px;">Salary Range</td>
+            <td style="padding-top:15px;" class="experience">Type of Payout</td>
+            <td style="padding-top:15px;" class="experience">Duration</td>
+        </tr>
+        <tr style="font-size: 12px; color:#444444; font-weight: 700;">
+            <td >{{min_salary}}₹ - {{max_salary}}₹</td>
+            <td  class="experience">{{payout_type}}</td>
+            <td  class="experience">{{project_duration}} months</td>
+        </tr>
+        
+        <tr style="font-size: 11px; color: #888888;">
+            <td style="padding-top:15px;">Location Constraints</td>
+            <td style="padding-top:15px;" class="experience">City</td>
+            <td style="padding-top:15px;" class="experience">Travelling Required</td>
+        </tr>
+        <tr style="font-size: 12px; color:#444444; font-weight: 700;">
+            <td>{{location_constraints}}</td>
+            <td class="experience">{{city}}</td>
+            <td class="experience">{{travelling_required}}</td>
+        </tr>
+      </table>
+      <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Please click <a href={{active_project_link}} universal="true">here</a> to go to the App and move ahead in the process for this role, if you are interested.</p>
+      <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Thanks and Best Regards,</p>
+      <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Team FlexiBees</p>
+</td>
+{% endblock content %}

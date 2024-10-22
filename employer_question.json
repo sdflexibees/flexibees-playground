@@ -1,0 +1,153 @@
+[
+  {
+    "function_name": "digital marketing",
+    "role_lists": [
+      {
+        "role": "digital marketing manager",
+        "question_box": [
+          {
+            "ques": "The Digital Marketing Manager should mainly do",
+            "options": ["Strategy", "Execution", "Both"],
+            "skill_status": false
+          },
+          {
+            "ques": "The bulk of your digital marketing plans are going to be",
+            "options": ["Organic", "Paid", "Both"],
+            "skill_status": false
+          },
+          {
+            "ques": "We recommended 3-5 years experience for this role.. if not please pick from below",
+            "options": ["0-3yrs", "3-5yrs", "5-7yrs", "7yrs+"],
+            "skill_status": false
+          },
+          {
+            "ques": "For this role we think experience on LinkedIn, Email Marketing is a must have In addition, some of the other platforms that can be used are below",
+            "options": [],
+            "skill_status": true
+          },
+          {
+            "ques": "Our recommendation for hours needed based  on role and company size is 4-5 hours per day ",
+            "options": [
+              "2-3 hours per day",
+              "3-4 hours per day",
+              "4-5 hours per day",
+              "5-6 hours per day"
+            ],
+            "skill_status": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "function_name": "sales/ bd",
+    "role_lists": [
+      {
+        "role": "b2c sales",
+        "question_box": [
+          {
+            "ques": "We recommended 3-5 years experience for this role.. if not please pick from below",
+            "options": ["0-3yrs", "3-5yrs", "5-7yrs", "7yrs+"],
+            "skill_status": false
+          },
+          {
+            "ques": "Skills for B2C Sales",
+            "options": [],
+            "skill_status": true
+          },
+          {
+            "ques": "Our recommendation for hours needed based  on role and company size is 4-5 hours per day ",
+            "options": [
+              "2-3 hours per day",
+              "3-4 hours per day",
+              "4-5 hours per day",
+              "5-6 hours per day"
+            ],
+            "skill_status": false
+          },
+          {
+            "ques": "The B2C Scales Job Type ",
+            "options": [
+              "Full Time",
+              "1-2 Days Per Week",
+              "3 Days Per Week",
+              "All Day"
+            ],
+            "skill_status": false
+          }
+        ]
+      },
+      {
+        "role": "b2b sales",
+        "question_box": [
+          {
+            "ques": "We recommended 3-5 years experience for this role.. if not please pick from below",
+            "options": ["0-3yrs", "3-5yrs", "5-7yrs", "7yrs+"],
+            "skill_status": false
+          },
+          {
+            "ques": "Skills for Sales and Business Development",
+            "options": [],
+            "skill_status": true
+          },
+          {
+            "ques": "The B2B Sales Lead generation requirements",
+            "options": ["Yes", "No"],
+            "skill_status": false
+          },
+          {
+            "ques": "Our recommendation for hours needed based  on role and company size is 4-5 hours per day ",
+            "options": [
+              "2-3 hours per day",
+              "3-4 hours per day",
+              "4-5 hours per day",
+              "5-6 hours per day"
+            ],
+            "skill_status": false
+          },
+          {
+            "ques": "The B2B Sales Job Type ",
+            "options": [
+              "Full Time",
+              "1-2 Days Per Week",
+              "3 Days Per Week",
+              "All Day"
+            ],
+            "skill_status": false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "function_name": "common question",
+    "role_lists": [
+      {
+        "role": "common roles",
+        "question_box": [
+          {
+            "ques": "We recommended 3-5 years experience for this role.. if not please pick from below",
+            "options": ["0-3yrs", "3-5yrs", "5-7yrs", "7yrs+"],
+            "skill_status": false
+          },
+          {
+            "ques": "Skills for {}",
+            "options": [],
+            "skill_status": true
+          },
+          {
+            "ques": "Our recommendation for hours needed based  on role and company size is 4-5 hours per day ",
+            "options": [
+              "2-3 hours per day",
+              "3-4 hours per day",
+              "4-5 hours per day",
+              "5-6 hours per day"
+            ],
+            "skill_status": false
+          }
+        ]
+      }
+    ]
+  }
+]

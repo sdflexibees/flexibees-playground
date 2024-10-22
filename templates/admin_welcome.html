@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<td style="padding: 55px 70px;">
+    <p style="padding-bottom: 0px; margin: 0;font-size: 31px;font-weight:700">Hi {{ first_name | title }},</p>
+<!--    <p style="padding-bottom: 20px; margin: 0;font-size: 31px;font-weight:700">Welcome to FlexiBees! </p>-->
+<!--    <p style="padding-bottom: 20px; margin: 0;color: #53565a;font-size: 14px;font-family: 'Open Sans', sans-serif;">Android: <a target="_blank" href="#" style="color: #9c9c9c;font-size: 14px;font-family: 'Open Sans', sans-serif; display: inline-block;">android-link</a></p>-->
+<!--    <p style="padding-bottom: 20px; margin: 0;color: #53565a;font-size: 14px;font-family: 'Open Sans', sans-serif;">iOS: <a target="_blank" href="#" style="color: #9c9c9c;font-size: 14px;font-family: 'Open Sans', sans-serif; display: inline-block;">ios-link</a></p>-->
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Congrats, you now have a new FlexiBees account! Welcome to a whole new world of technology in our newest FlexiBees portal!</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Please log into FlexiBees using below credentials:</p>
+    <table style="width: 100%;margin-bottom:20px; border-collapse:collapse;">
+        <thead style="background-color: #fcfcfc;">
+            <tr>
+                <td style="border-top: 1px solid #f0f0f0;border-right: 1px solid #f0f0f0;border-left: 1px solid #f0f0f0;border-bottom: 1px solid #f0f0f0;padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400;padding: 15px 15px;width:175px;">Email ID</td>
+                <td style="border-top: 1px solid #f0f0f0;border-right: 1px solid #f0f0f0;border-bottom: 1px solid #f0f0f0;padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400;padding: 15px 15px;width:175px;">Password</td>
+                <td style="border-top: 1px solid #f0f0f0;border-right: 1px solid #f0f0f0;border-bottom: 1px solid #f0f0f0;padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400;padding: 15px 15px;width:175px;">Website url</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="border-top: 1px solid #f0f0f0;border-right: 1px solid #f0f0f0;border-left: 1px solid #f0f0f0;border-bottom: 1px solid #f0f0f0;padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400;padding: 15px 15px;width:175px;">{{ email }}</td>
+                <td style="border-top: 1px solid #f0f0f0;border-right: 1px solid #f0f0f0;border-bottom: 1px solid #f0f0f0;padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400;padding: 15px 15px;width:175px;">{{ password }}</td>
+                {% if role == "bd" %}
+                <td style="border-top: 1px solid #f0f0f0;border-right: 1px solid #f0f0f0;border-bottom: 1px solid #f0f0f0;padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400;padding: 15px 15px;width:175px;"><a target="_blank" href="https://{{ front_end_url }}" style="color:#F8B817;text-decoration: none;">Login as BD</a></td>
+                {% elif role == "recruiter" %}
+                <td style="border-top: 1px solid #f0f0f0;border-right: 1px solid #f0f0f0;border-bottom: 1px solid #f0f0f0;padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400;padding: 15px 15px;width:175px;"><a target="_blank" href="https://{{ front_end_url }}" style="color:#F8B817;text-decoration: none;">Login as Recruiter</a></td>
+                {% elif role == "admin" %}
+                <td style="border-top: 1px solid #f0f0f0;border-right: 1px solid #f0f0f0;border-bottom: 1px solid #f0f0f0;padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400;padding: 15px 15px;width:175px;"><a target="_blank" href="https://{{ front_end_url }}" style="color:#F8B817;text-decoration: none;">Login as Recruiter Admin</a></td>
+                {% else %}
+                <td style="border-top: 1px solid #f0f0f0;border-right: 1px solid #f0f0f0;border-bottom: 1px solid #f0f0f0;padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400;padding: 15px 15px;width:175px;"><a target="_blank" href="https://{{ front_end_url }}" style="color:#F8B817;text-decoration: none;">Login as Super Admin</a></td>
+                {% endif %}
+            </tr>
+        </tbody>
+    </table>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Get the most out of your FlexiBees account simply by signing in.</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Thanks,</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">FlexiBees Team</p>
+    <p style="padding-bottom: 20px; margin: 0;font-size: 14px;font-weight:400">Please do not delete this email. Reach out to rashmi@flexibees.com for further queries</p>
+</td>
+{% endblock content %}

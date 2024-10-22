@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Resume - Flexibees</title>
+    <!-- Manrope google font -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- internal styles -->
+    <style>
+              html, body {
+                  line-height: 22px;
+                  font-size: 12px;
+                  font-family: 'Manrope', sans-serif;
+                  color: rgba(0,0,0,.85);
+                  margin: 0px;
+                  padding: 0px;
+                  padding-top: 20px;
+                  color: #222222;
+                  height: auto;
+                  background-color: #ffffff;
+                  break-inside: avoid;
+                  page-break-inside: avoid;
+              }
+              h1, h2, h3, h4, h5, h6 {
+                  margin: 0px;
+                  font-weight: normal;
+              }
+              h2 {
+                  text-transform: uppercase;
+                  font-size: 20px;
+                  font-weight: bold;
+                  letter-spacing: 4px;
+      ​
+              }
+              .resume_left h4 {
+                  margin: 0px;
+                  font-weight: bold;
+                  font-size: 14px;
+                  text-transform: capitalize;
+              }
+              .resume_right h4 {
+                  margin: 0px;
+                  font-size: 14px;
+                  margin-bottom: 6px;
+                  font-weight: bold;
+              }
+              h1 {
+                  font-size: 34px;
+                  margin-bottom: 14px;
+                  text-transform: uppercase;
+                  letter-spacing: 4px;
+                  font-weight: bold;​
+              }
+              p {
+                  margin: 0px 0px;
+                  text-transform: capitalize;
+              }
+              h4.title {
+                  text-transform: uppercase;
+                  color: #222222;
+                  letter-spacing: 4px;
+              }
+              .bold{
+                  font-weight: bold;
+              }
+              ul {
+                  padding: 0;
+                  list-style-type: none;
+              }
+              li {
+                  text-transform: capitalize;
+              }
+              .row_box {
+                  display: flex;
+                  background-color: #ffffff;
+                  border: 1px solid #cccccc;
+                  padding: 0px;
+                  margin: 0px;
+                  height: 100%;
+              }
+              .company_info p {
+                  margin-top: 2px;
+              }
+              .company_info {
+                  width: 100%;
+              }
+              .resume_left {
+                  background-color: #FEF1D1;
+                  padding-top: 20px;
+                  width: 40%;
+                  margin: 0px;
+                  height: 5000px;
+              }
+              .resume_left h2 {
+                  padding: 0px;
+                  margin: 0px;
+                  padding-bottom: 6px;
+                  border-bottom: 2px solid #222222;
+              }
+              .name_section {
+                  word-break: break-all;
+                  flex: 0.8;
+              }
+              .logo_div {
+                  flex:0.15;
+              }
+              .resume_left_inner {
+                  margin-left: 15%;
+              }
+              .resume_right_inner {
+                  padding-left: 10%;
+                  padding-right: 10%;
+              }
+              .content01 {
+                  margin: 10px 0px;
+                  word-break: break-all;
+                  line-height: 18px;
+              }
+              .content01 h4{
+                font-size: 14px;
+                font-weight: 500;
+              }
+              .resume_right {
+                  padding-top: 60px;
+                  width: 60%;
+                  height: 100%;
+​
+              }
+              .workExp_inner_left, .workExp_inner_right {
+                  float: left;
+              }
+              .workExp_inner_left {
+                  width: 50px;
+                  height: 100%;
+              }
+              .workExp_inner_right {
+                  width: 100%;
+                  display: flex;
+              }
+              .workExp_inner_right h4{
+                  margin-bottom: 0px;
+                  padding-bottom: 0px;
+              }
+              .circle {
+                  width: 10px;
+                  height: 10px;
+                  border-radius: 50%;
+                  border: 2px solid #000;
+              }
+              .line {
+                  width: 2px;
+                  height: 100%;
+                  background-color: #222222;
+                  margin-left: 6px;
+              }
+              .summary_div {
+                  margin: 0px;
+              }
+              .workExp_div h2 {
+                  padding-bottom: 8px;
+                  border-bottom: 2px solid #222222;
+              }
+              .workExp_div {
+                  margin-bottom: 20px;
+              }
+              .workExp_inner {
+                  margin: 0px;
+              }
+              .company_block {
+                  height: auto;
+                  display: flex;
+                  margin: 10px 0px;
+                  width: 100%;
+              }
+              .company_block.company_block03 {
+                  height: -webkit-fill-available;
+                  position: relative;
+              }
+​
+              .company_block ul {
+                  padding-left: 15px;
+                  list-style-type: disc;
+              }
+              .list_thread {
+                  height: 100%;
+                  margin-right: 16px;
+              }
+              .logo_div img {
+                  width: 100%;
+              }
+              .company_block.company_block03::before {
+                  position: absolute;
+                  content: '';
+                  border-left: 2px solid #000;
+                  height: inherit;
+                  left: 6px;
+                  top: 12px;
+              }
+              @page {
+                   size: auto;
+                   margin: 4mm;
+                   padding-top: 20px;
+                   background-color: #f2f2f2;
+              }
+               h2 {
+                  padding-bottom: 8px;
+                  border-bottom: 2px solid #222222;
+                  width: 35%;
+                  margin-bottom: 10px;
+              }
+              .cert_div {
+                  margin-top: 20px;
+              }
+              .header {
+                  display: flex;
+                  flex: 1;
+                  background-color: #888888;
+                  align-items: center;
+                  color: #ffffff;
+              }
+              .resume-details{
+                  margin: 20px 0px;
+                  padding-left: 20px;
+              }
+              .section-item {
+                  margin-top: 20px;
+              }
+              .resume {
+                  margin: 20px;
+                  border: 1px solid #ccc;
+              }
+              th {
+                  background: #eee;
+                  color: #000000;
+                  font-weight: bold;
+              }
+              td, th {
+                  padding: 6px;
+                  border: 1px solid #ccc;
+                  text-align: left;
+                  font-size: 14px;
+                  font-weight: 500;
+              }
+    </style>
+  </head>
+  <body>
+    <div class="resume">
+      <div class="header">
+        <div class="logo_div">
+          <img
+            src="https://flexibees-dev.s3-ap-south-1.amazonaws.com/images/adminuser/10d29520f57b45939637a4f93552c490.png"
+            alt="logo"
+          />
+        </div>
+        <div class="name_section">
+          <h1>{{ first_name }} {{ last_name }}</h1>
+        </div>
+      </div>
+      <div class="resume-details">
+          <div class="section-item">
+              {% if profile_summary %}
+              <h2>profile</h2>
+          <div class="summary_div">
+            <p style="width:90%;">{{ profile_summary }}</p>
+          </div>
+          {% endif %}
+          </div>
+
+          <div class="skills section-item">
+          {% if skills|length > 0 %}
+            <h2>skills</h2>
+          <div class="content01">
+            <ul style="width:90%;">
+              {% for each_skill in skills %}
+                {% if forloop.last %}
+                    <li style="display: inline-block; margin-right:3px; font-size: 14px; font-weight: 500;">{{ each_skill.name }}</li>
+                {% else %}
+                <li style="display: inline-block; margin-right:3px; font-size: 14px; font-weight: 500;">{{ each_skill.name }},</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+
+          <div class="work section-item">
+          {% if work_experience|length > 0 %}
+            <h2>work experience</h2>
+          <div class="workExp_inner">
+            {% for work in work_experience %}
+            <div class="company_block">
+              <div class="workExp_inner_right">
+                <div>
+                  <h4 style="font-size:14px; font-weight:500;">
+                    <span class="bold">{{ work.role.name }}</span>
+                  </h4>
+                    <span style="font-size:14px; font-weight:500;">{{ work.company }}</span><br>
+                    {% if work.end_date != None %}
+                        <span style="opacity:0.6;">{{ work.start_date }} - {{ work.end_date }}</span>
+                    {% else %}
+                        <span style="opacity:0.6;">{{ work.start_date }} - Present</span>
+                    {% endif %}
+                  <div class="company_info">
+                    <p style="width:90%;">{{ work.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+          <div class="education section-item">
+          {% if education|length > 0 %}
+              <h2>education</h2>
+          <div class="workExp_inner">
+              <table>
+                  <thead>
+                    <tr>
+                      <th>Course</th>
+                      <th>Start Year</th>
+                      <th>End Year</th>
+                      <th>School/College/University</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for edu in education %}
+                    <tr>
+                      <td data-column="First Name"> {{ edu.course }}</td>
+                      <td data-column="First Name"> {{ edu.start_date }}</td>
+                      <td data-column="First Name"> {{ edu.end_date }}</td>
+                      <td data-column="First Name"> {{ edu.school_college }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+          </div>
+          {% endif %}
+          </div>
+
+        <div class="certifications section-item">
+          {% if certifications|length > 0 %}
+            <h2>certifications</h2>
+          <div class="workExp_inner">
+            {% for certification in certifications %}
+            <div class="company_block">
+              <div class="workExp_inner_right">
+                <div>
+                  <h4 style="font-size: 14px; font-weight: 500;">{{ certification.title }}</h4>
+                  <div class="company_info">
+                    <p style="opacity:0.6;">Issued by {{ certification.issued_by }} - {{ certification.issue_date }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+​
+        <div class="languages section-item" style="margin-top: -20px;">
+          {% if languages|length > 0 %}
+            <h2>Languages</h2>
+          <ul>
+            {% for lang in languages %}
+              {% if forloop.last %}
+                <li style="display: inline-block; margin-right:3px; font-size: 14px; font-weight: 500;">{{ lang.language.name }}</li>
+              {% else %}
+                <li style="display: inline-block; margin-right:3px; font-size: 14px; font-weight: 500;">{{ lang.language.name }},</li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <meta charset='utf-8'>-->
+<!--    <title>Resume - Flexibees</title>-->
+<!--    &lt;!&ndash; Manrope google font &ndash;&gt;-->
+<!--    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>-->
+<!--    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">-->
+<!--    &lt;!&ndash; internal styles &ndash;&gt;-->
+<!--    <style>-->
+<!--        html, body {-->
+<!--            line-height: 22px;-->
+<!--            font-size: 12px;-->
+<!--            font-family: 'Manrope', sans-serif;-->
+<!--            color: rgba(0,0,0,.85);-->
+<!--            margin: 0px;-->
+<!--            padding: 0px;-->
+<!--            color: #222222;-->
+<!--            height: 100%;-->
+<!--            backgroud-color: #ffffff;-->
+<!--        }-->
+<!--        h1, h2, h3, h4, h5, h6 {-->
+<!--            margin: 0px;-->
+<!--            font-weight: normal;-->
+<!--        }-->
+<!--        h2 {-->
+<!--            text-transform: uppercase;-->
+<!--            font-size: 20px;-->
+<!--            font-weight: bold;-->
+<!--            letter-spacing: 4px;-->
+<!--​-->
+<!--        }-->
+<!--        .resume_left h4 {-->
+<!--            margin: 0px;-->
+<!--            font-weight: bold;-->
+<!--            font-size: 14px;-->
+<!--            text-transform: capitalize;-->
+<!--        }-->
+<!--        .resume_right h4 {-->
+<!--            margin: 0px;-->
+<!--            font-size: 14px;-->
+<!--            margin-bottom: 6px;-->
+<!--            font-weight: bold;-->
+<!--        }-->
+<!--        h1 {-->
+<!--            font-size: 34px;-->
+<!--            margin-bottom: 24px;-->
+<!--            text-transform: uppercase;-->
+<!--            letter-spacing: 4px;-->
+<!--            line-height: 54px;-->
+<!--​-->
+<!--        }-->
+<!--        p {-->
+<!--            margin: 0px 0px;-->
+<!--            text-transform: capitalize;-->
+<!--        }-->
+<!--        h4.title {-->
+<!--            text-transform: uppercase;-->
+<!--            color: #222222;-->
+<!--            letter-spacing: 4px;-->
+<!--        }-->
+<!--        .bold{-->
+<!--            font-weight: bold;-->
+<!--        }-->
+<!--        ul {-->
+<!--            padding: 0;-->
+<!--            list-style-type: none;-->
+<!--        }-->
+<!--        li {-->
+<!--            text-transform: capitalize;-->
+<!--        }-->
+<!--        .row_box {-->
+<!--            display: flex;-->
+<!--            background-color: #ffffff;-->
+<!--            border: 1px solid #cccccc;-->
+<!--            padding: 0px;-->
+<!--            margin: 0px;-->
+<!--            height: 100%;-->
+<!--        }-->
+<!--        .company_info p {-->
+<!--            margin-top: 2px;-->
+<!--        }-->
+<!--        .company_info {-->
+<!--            width: 100%;-->
+<!--            text-align: justify;-->
+<!--        }-->
+<!--        .resume_left {-->
+<!--            background-color: #FEF1D1;-->
+<!--            padding-top: 20px;-->
+<!--            width: 40%;-->
+<!--            margin: 0px;-->
+<!--            height: 5000px;-->
+<!--        }-->
+<!--        .resume_left h2 {-->
+<!--            padding: 0px;-->
+<!--            margin: 0px;-->
+<!--            padding-bottom: 6px;-->
+<!--            border-bottom: 2px solid #222222;-->
+<!--        }-->
+<!--        .name_section {-->
+<!--            width: auto;-->
+<!--            word-break: break-all;-->
+<!--        }-->
+<!--        .logo_div {-->
+<!--            width: 200px;-->
+<!--        }-->
+<!--        .resume_left_inner {-->
+<!--            margin-left: 15%;-->
+<!--        }-->
+<!--        .resume_right_inner {-->
+<!--            padding-left: 10%;-->
+<!--            padding-right: 10%;-->
+<!--        }-->
+<!--        .content01 {-->
+<!--            margin: 2px 0px;-->
+<!--            word-break: break-all;-->
+<!--            line-height: 18px;-->
+<!--        }-->
+<!--        .resume_right {-->
+<!--            padding-top: 60px;-->
+<!--            width: 60%;-->
+<!--            height: 100%;-->
+
+<!--        }-->
+<!--        .workExp_inner_left, .workExp_inner_right {-->
+<!--            float: left;-->
+<!--        }-->
+<!--        .workExp_inner_left {-->
+<!--            width: 50px;-->
+<!--            height: 100%;-->
+<!--        }-->
+<!--        .workExp_inner_right {-->
+<!--            width: 100%;-->
+<!--            display: flex;-->
+<!--        }-->
+<!--        .workExp_inner_right h4{-->
+<!--            margin-bottom: 0px;-->
+<!--            padding-bottom: 0px;-->
+<!--        }-->
+<!--        .circle {-->
+<!--            width: 10px;-->
+<!--            height: 10px;-->
+<!--            border-radius: 50%;-->
+<!--            border: 2px solid #000;-->
+<!--        }-->
+<!--        .line {-->
+<!--            width: 2px;-->
+<!--            height: 100%;-->
+<!--            background-color: #222222;-->
+<!--            margin-left: 6px;-->
+<!--        }-->
+<!--        .summary_div {-->
+<!--            margin: 20px 0px 50px 0px;-->
+<!--        }-->
+<!--        .workExp_div h2 {-->
+<!--            padding-bottom: 8px;-->
+<!--            border-bottom: 2px solid #222222;-->
+<!--        }-->
+<!--        .workExp_div {-->
+<!--            margin-bottom: 20px;-->
+<!--        }-->
+<!--        .workExp_inner {-->
+<!--            margin: 20px 0px;-->
+<!--        }-->
+<!--        .company_block {-->
+<!--            height: auto;-->
+<!--            display: flex;-->
+<!--            margin: 10px 0px;-->
+<!--            width: 100%;-->
+<!--        }-->
+<!--        .company_block.company_block03 {-->
+<!--            height: -webkit-fill-available;-->
+<!--            position: relative;-->
+<!--        }-->
+
+<!--        .company_block ul {-->
+<!--            padding-left: 15px;-->
+<!--            list-style-type: disc;-->
+<!--        }-->
+<!--        .list_thread {-->
+<!--            height: 100%;-->
+<!--            margin-right: 16px;-->
+<!--        }-->
+<!--        .logo_div img {-->
+<!--            width: 100%;-->
+<!--        }-->
+<!--        .company_block.company_block03::before {-->
+<!--            position: absolute;-->
+<!--            content: '';-->
+<!--            border-left: 2px solid #000;-->
+<!--            height: inherit;-->
+<!--            left: 6px;-->
+<!--            top: 12px;-->
+<!--        }-->
+<!--        @page {-->
+<!--             size: auto;-->
+<!--             margin: 4mm;-->
+<!--             background-color: #f2f2f2;-->
+<!--        }-->
+<!--        .cert_div h2 {-->
+<!--            padding-bottom: 8px;-->
+<!--            border-bottom: 2px solid #222222;-->
+<!--        }-->
+<!--        .cert_div {-->
+<!--            margin-top: 20px;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--        <div class="row_box">-->
+<!--            &lt;!&ndash; personal info section &ndash;&gt;-->
+<!--            <div class="resume_left">-->
+<!--            <div class="resume_left_inner">-->
+<!--                <div class="logo_div">-->
+<!--                    <img src="https://flexibees-dev.s3-ap-south-1.amazonaws.com/images/adminuser/10d29520f57b45939637a4f93552c490.png" alt="logo" />-->
+<!--                </div>-->
+<!--​-->
+<!--                <div class="edu_div">-->
+<!--                    <h2>education</h2>-->
+<!--                    {% if education|length > 0 %}-->
+<!--                        {% for edu in education %}-->
+<!--                            <div class="content01">-->
+<!--                                <p>{{ edu.school_college }}</p>-->
+<!--                                <p>{{ edu.start_date }} - {{ edu.end_date }}</p>-->
+<!--                            </div>-->
+<!--                        {% endfor %}-->
+<!--                    {% else %}-->
+<!--                        <p>No data added</p>-->
+<!--                    {% endif %}-->
+<!--                </div>-->
+<!--​-->
+<!--                <div class="skills_div">-->
+<!--                    <h2>skills</h2>-->
+<!--                    {% if skills|length > 0 %}-->
+<!--                        {% if skills|length > 8 %}-->
+<!--                            <div class="content01">-->
+<!--                                <ul>-->
+<!--                                    {% for each_skill in skills %}-->
+<!--                                        <li style="display: inline-block;">{{ each_skill.name }}, </li>-->
+<!--                                    {% endfor %}-->
+<!--                                </ul>-->
+<!--                            </div>-->
+<!--                        {% else %}-->
+<!--                            <div class="content01">-->
+<!--                                <ul>-->
+<!--                                    {% for each_skill in skills %}-->
+<!--                                        <li>{{ each_skill.name }}</li>-->
+<!--                                    {% endfor %}-->
+<!--                                </ul>-->
+<!--                            </div>-->
+<!--                        {% endif %}-->
+<!--                    {% else %}-->
+<!--                        <p>No data added</p>-->
+<!--                    {% endif %}-->
+<!--                </div>-->
+<!--                <div class="domain_div">-->
+<!--                    <h2>Languages</h2>-->
+<!--                    {% if languages|length > 0 %}-->
+<!--                        <ul>-->
+<!--                            {% for lang in languages %}-->
+<!--                                <li>{{ lang.language.name }}</li>-->
+<!--                            {% endfor %}-->
+<!--                        </ul>-->
+<!--                    {% else %}-->
+<!--                        <p>No data added</p>-->
+<!--                    {% endif %}-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--​-->
+<!--            &lt;!&ndash; profile section right &ndash;&gt;-->
+<!--            <div class="resume_right">-->
+<!--                <div class="resume_right_inner">-->
+<!--                    <div class="name_section">-->
+<!--                        <h1>{{ first_name }} {{ last_name }}</h1>-->
+<!--                        {% if profile_summary %}-->
+<!--                            <div class="summary_div">-->
+<!--                                <p>{{ profile_summary }}</p>-->
+<!--                            </div>-->
+<!--                        {% endif %}-->
+<!--                    </div>-->
+<!--    ​-->
+<!--                    <div class="workExp_div">-->
+<!--                        <h2>work experience</h2>-->
+<!--                        {% if work_experience|length > 0 %}-->
+<!--                            <div class="workExp_inner">-->
+<!--                                {% for work in work_experience %}-->
+<!--                                    <div class="company_block">-->
+
+<!--                                    <div class="workExp_inner_right">-->
+<!--                                        <div class="list_thread">-->
+<!--                                            <div class="circle"></div>-->
+<!--                                            <div class="line"></div>-->
+<!--                                        </div>-->
+<!--                                        <div>-->
+<!--                                            <h4><span class="bold">{{ work.company }} /</span> {{ work.role.name }}</h4>-->
+<!--                                            <span>From {{ work.start_date }} to {{ work.end_date }}</span>-->
+<!--                                        <div class="company_info">-->
+<!--                                            <p>{{ work.description }}</p>-->
+<!--                                        </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                {% endfor %}-->
+<!--                        </div>-->
+<!--                        {% else %}-->
+<!--                            <p>No data added</p>-->
+<!--                        {% endif %}-->
+<!--                    </div>-->
+
+<!--                    <div class="cert_div">-->
+<!--                         <h2>certifications</h2>-->
+<!--                        {% if certifications|length > 0 %}-->
+<!--                            <div class="workExp_inner">-->
+<!--                                {% for certification in certifications %}-->
+<!--                                    <div class="company_block">-->
+
+<!--                                    <div class="workExp_inner_right">-->
+<!--                                        <div>-->
+<!--                                            <h4><span class="bold">{{ certification.title }}</span></h4>-->
+<!--                                        <div class="company_info">-->
+<!--                                            <p>Issued by {{ certification.issued_by }} - {{ certification.issue_date }}</p>-->
+<!--                                        </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                {% endfor %}-->
+<!--                        </div>-->
+<!--                        {% else %}-->
+<!--                            <p>No data added</p>-->
+<!--                        {% endif %}-->
+<!--                    </div>-->
+<!--    ​-->
+<!--    ​-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--</body>-->
+<!--</html>-->
