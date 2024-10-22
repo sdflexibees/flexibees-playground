@@ -40,7 +40,8 @@ PROJECT_APPS = [
     'apps.candidate',
     'apps.availability',
     "apps.common",
-    'apps.employer'
+    'apps.employer',
+    'apps.finance'
 ]
 
 INSTALLED_APPS = PREREQUISITE_APPS + PROJECT_APPS
