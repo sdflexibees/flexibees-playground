@@ -74,8 +74,8 @@ class Consultant(models.Model):
     alt_contact_person_name = models.CharField(_("Alternative Contact Person's Name"), max_length=255, blank=True, null=True)
     alt_contact_person_number = models.CharField(_("Alternative Contact Person's Phone"), max_length=125, blank=True, null=True)
     alt_contact_person_relation = models.CharField(_("Relation with Alternative Contact Person"), max_length=255, blank=True, null=True)    
-    number_of_projects = models.IntegerField()
-    number_of_current_projects = models.IntegerField(validators=[MaxValueValidator(3)]) # maximum current project should not be greater than 3
+    number_of_projects = models.IntegerField(default=1)
+    number_of_current_projects = models.IntegerField(default=0,validators=[MaxValueValidator(3)]) # maximum current project should not be greater than 3
     
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)

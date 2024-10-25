@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from apps.candidate.models import Candidate
 from apps.finance.models import BankAccount, Consultant, SocialMedia
 
 class SocialMediaSerializer(serializers.ModelSerializer):
@@ -73,15 +74,13 @@ class BankAccountListSerializer(serializers.ModelSerializer):
         
         
 class ConsultantSerializer(serializers.ModelSerializer):
-    candidate_name = serializers.CharField(source='candidate.first_name', read_only=True)
-    social_media = SocialMediaSerializer()
-    bank_details = BankAccountSerializer()
 
     class Meta:
         model = Consultant
         fields = [
-            'candidate', 'candidate_name',
-            'alt_contact_person_name', 'alt_contact_person_number',
+            'candidate',
+            'alt_contact_person_name', 
+            'alt_contact_person_number',
             'alt_contact_person_relation'
         ]
 

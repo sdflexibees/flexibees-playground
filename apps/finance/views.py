@@ -9,8 +9,8 @@ from core.response_format import message_response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from apps.finance.models import BankAccount, SocialMedia
-from apps.finance.serializers import BankAccountListSerializer, BankAccountSerializer, SocialMediaListSerializer, SocialMediaSerializer
+from apps.finance.models import BankAccount, Consultant, SocialMedia
+from apps.finance.serializers import BankAccountListSerializer, BankAccountSerializer, ConsultantListSerializer, ConsultantSerializer, SocialMediaListSerializer, SocialMediaSerializer
 
 from django.template.loader import get_template, render_to_string
 from xhtml2pdf import pisa
@@ -283,48 +283,53 @@ class BankAccountAPI(ModelViewSet):
         return Response(message_response("Bank account deactivated successfully"), status=200)
     
     
-# class ConsultantAPI(ModelViewSet):
-#     # permission_classes = [AdminAuthentication]
-#     serializer_class = ConsultantSerializer
+class ConsultantAPI(ModelViewSet):
+    # permission_classes = [AdminAuthentication]
+    serializer_class = ConsultantSerializer
 
-#     def get_queryset(self):
-#         return Consultant.objects.filter(active=True).order_by('-id')
+    def get_queryset(self):
+        return Consultant.objects.filter(active=True).order_by('-id')
 
-#     @swagger_auto_schema(operation_description='List all active consultants')
-#     def list(self, request):
-#         queryset = self.get_queryset()
-#         serializer = ConsultantListSerializer(queryset, many=True)
-#         return Response(serializer.data)
+    @swagger_auto_schema(operation_description='List all active consultants')
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = ConsultantListSerializer(queryset, many=True)
+        return Response(serializer.data)
 
-#     @swagger_auto_schema(operation_description='Retrieve consultant details by ID')
-#     def retrieve(self, request, pk=None):
-#         consultant = get_object_or_404(Consultant, id=pk, active=True)
-#         serializer = ConsultantSerializer(consultant)
-#         return Response(serializer.data)
+    @swagger_auto_schema(operation_description='Retrieve consultant details by ID')
+    def retrieve(self, request, pk=None):
+        consultant = get_object_or_404(Consultant, id=pk, active=True)
+        serializer = ConsultantSerializer(consultant)
+        return Response(serializer.data)
 
-#     @swagger_auto_schema(request_body=ConsultantSerializer, operation_description='Create a new consultant')
-#     def create(self, request):
-#         serializer = ConsultantSerializer(data=request.data, context={'request': request})
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(message_response("Consultant created successfully"), status=201)
-#         return Response(serializer.errors, status=400)
+    @swagger_auto_schema(request_body=ConsultantSerializer, operation_description='Create a new consultant')
+    def create(self, request):
+        print("create consultant request")
+        serializer = ConsultantSerializer(data=request.data, context={'request': request})
+        print("serializer ",serializer)
+        if serializer.is_valid():
+            print("serializer is valid")
+            serializer.save()
+            return Response(message_response("Consultant created successfully"), status=201)
+        print("serializer is not valid")
+        print("errors ",serializer.errors)
+        return Response(serializer.errors, status=400)
 
-#     @swagger_auto_schema(request_body=ConsultantSerializer, operation_description='Update consultant details')
-#     def partial_update(self, request, pk=None):
-#         consultant = get_object_or_404(Consultant, id=pk, active=True)
-#         serializer = ConsultantSerializer(consultant, data=request.data, partial=True)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=400)
+    @swagger_auto_schema(request_body=ConsultantSerializer, operation_description='Update consultant details')
+    def partial_update(self, request, pk=None):
+        consultant = get_object_or_404(Consultant, id=pk, active=True)
+        serializer = ConsultantSerializer(consultant, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
 
-#     @swagger_auto_schema(operation_description='Deactivate consultant')
-#     def destroy(self, request, pk=None):
-#         consultant = get_object_or_404(Consultant, id=pk, active=True)
-#         consultant.active = False
-#         consultant.save()
-#         return Response(message_response("Consultant deactivated successfully"), status=200)
+    @swagger_auto_schema(operation_description='Deactivate consultant')
+    def destroy(self, request, pk=None):
+        consultant = get_object_or_404(Consultant, id=pk, active=True)
+        consultant.active = False
+        consultant.save()
+        return Response(message_response("Consultant deactivated successfully"), status=200)
 
 
 # class ConsultantContractAPI(ModelViewSet):
