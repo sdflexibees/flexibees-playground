@@ -214,6 +214,7 @@ class CandidateAccountsAPI(ModelViewSet):
             check_invalid([phone_number, country_code])
             check_phone_number(phone_number)
         otp = generate_otp()
+        print("otp ",otp)
         request.data['otp'] = make_password(otp)
         serializer = CandidateSerializer(data=request.data, partial=True)
         if serializer.is_valid():

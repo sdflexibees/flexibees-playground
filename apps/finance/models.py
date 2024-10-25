@@ -70,9 +70,7 @@ class BankAccount(models.Model):
 
 
 class Consultant(models.Model):
-    candidate = models.ForeignKey("candidate.Candidate", on_delete=models.CASCADE, limit_choices_to={'status': '17'}, related_name='consultant')    
-    social_media = models.ForeignKey(SocialMedia, on_delete=models.CASCADE)
-    bank_details = models.ForeignKey(BankAccount, on_delete=models.CASCADE)
+    candidate = models.ForeignKey("candidate.Candidate", on_delete=models.CASCADE, limit_choices_to={'status': '17'}, related_name='consultant')  
     alt_contact_person_name = models.CharField(_("Alternative Contact Person's Name"), max_length=255, blank=True, null=True)
     alt_contact_person_number = models.CharField(_("Alternative Contact Person's Phone"), max_length=125, blank=True, null=True)
     alt_contact_person_relation = models.CharField(_("Relation with Alternative Contact Person"), max_length=255, blank=True, null=True)    
@@ -92,35 +90,35 @@ class Consultant(models.Model):
         return f"Consultant {self.candidate.first_name}"
 
 
-class ConsultantContract(models.Model):
-    consultant = models.ForeignKey(Consultant, on_delete=models.CASCADE)
-    project = models.ForeignKey("projects.Project", on_delete=models.CASCADE)
-    job = models.ForeignKey("employer.Job", on_delete=models.CASCADE)
-    contract_type = models.CharField(_('Domain'),choices=CONTRACT_TYPES,max_length=255)
-    notice_period = models.IntegerField(_("Notice Period (in days)"))
-    created_date = models.DateField(_("Contract Date"), default=date.today)
-    signed_date = models.DateField()
-    start_date = models.DateField(_("Start Date"))
-    end_date = models.DateField(_("End Date"))
-    food_allowance = models.IntegerField(_("Food Allowance"), default=0)
-    travel_allowance = models.IntegerField(_("Travel Allowance"), default=0)
-    phone_allowance = models.IntegerField(_("Phone Allowance"), default=0)
-    other_allowance = models.IntegerField(_("Other Allowance"), default=0)
-    status = models.CharField(_('Status'),choices=CONTRACT_STATUS,max_length=125)
-    pdf_link = models.URLField(_("Link to Signed PDF"), blank=True, null=True)
-    digi_sign_link = models.URLField(_("Digital Signature Link"), blank=True, null=True)    
+# class ConsultantContract(models.Model):
+#     consultant = models.ForeignKey(Consultant, on_delete=models.CASCADE)
+#     project = models.ForeignKey("projects.Project", on_delete=models.CASCADE)
+#     job = models.ForeignKey("employer.Job", on_delete=models.CASCADE)
+#     contract_type = models.CharField(_('Domain'),choices=CONTRACT_TYPES,max_length=255)
+#     notice_period = models.IntegerField(_("Notice Period (in days)"))
+#     created_date = models.DateField(_("Contract Date"), default=date.today)
+#     signed_date = models.DateField()
+#     start_date = models.DateField(_("Start Date"))
+#     end_date = models.DateField(_("End Date"))
+#     food_allowance = models.IntegerField(_("Food Allowance"), default=0)
+#     travel_allowance = models.IntegerField(_("Travel Allowance"), default=0)
+#     phone_allowance = models.IntegerField(_("Phone Allowance"), default=0)
+#     other_allowance = models.IntegerField(_("Other Allowance"), default=0)
+#     status = models.CharField(_('Status'),choices=CONTRACT_STATUS,max_length=125)
+#     pdf_link = models.URLField(_("Link to Signed PDF"), blank=True, null=True)
+#     digi_sign_link = models.URLField(_("Digital Signature Link"), blank=True, null=True)    
 
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+#     active = models.BooleanField(default=True)
+#     created = models.DateTimeField(auto_now_add=True)
+#     modified = models.DateTimeField(auto_now=True)
     
-    class Meta:
-        db_table = 'contracts'
-        verbose_name = _('contract')
-        verbose_name_plural = _('contracts')
+#     class Meta:
+#         db_table = 'contracts'
+#         verbose_name = _('contract')
+#         verbose_name_plural = _('contracts')
 
-    def __str__(self):
-        return f'Contract for {self.consultant} on project {self.project}'
+#     def __str__(self):
+#         return f'Contract for {self.consultant} on project {self.project}'
     
-# ProjectRenewal
-# renewal_count = models.IntegerField(_("Number of times renewed")) # ask aboli - where should we keep the renewal count
+# # ProjectRenewal
+# # renewal_count = models.IntegerField(_("Number of times renewed")) # ask aboli - where should we keep the renewal count
