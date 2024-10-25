@@ -1,6 +1,8 @@
 from datetime import date
 from django.db import models
+from django.core.validators import MaxValueValidator
 from django.utils.translation import gettext_lazy as _
+from apps.common.models import Users
 
 
 
@@ -14,14 +16,13 @@ CONTRACT_STATUS = (
 
 CONTRACT_TYPES = (
     ('1',"Internal Consultant"),
-    ('2',"External - Resourcing - Fixed Working Hours"),
-    ('3',"External - Resourcing - Work Basis"),
-    ('4',"External - Resourcing - Hourly Basis"),
-    ('5',"External - Placement - One Time Fee")        
+    ('2',"External Consultant"),
+    ('3',"Placement")
 )
 
 
 class SocialMedia(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.DO_NOTHING, null=True)
     facebook_profile = models.URLField(_("Facebook Profile URL"), blank=True, null=True)
     instagram_profile = models.URLField(_("Instagram Profile URL"), blank=True, null=True)
     linkedin_profile = models.URLField(_("LinkedIn Profile URL"), blank=True, null=True)
@@ -39,10 +40,11 @@ class SocialMedia(models.Model):
         
         
     def __str__(self):
-        return f"Social Media Profiles for ID {self.id}"        
+        return f"Social Media Profiles for ID {self.user.first_name}"        
 
 
-class BankDetail(models.Model):
+class BankAccount(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.DO_NOTHING, null=True)
     pan_card = models.FileField(upload_to='bank_documents/', blank=True, null=True)
     aadhar_card = models.FileField(upload_to='bank_documents/', blank=True, null=True)
     account_holder_name = models.CharField(_("Account Holder's Name"), max_length=255)
@@ -70,13 +72,12 @@ class BankDetail(models.Model):
 class Consultant(models.Model):
     candidate = models.ForeignKey("candidate.Candidate", on_delete=models.CASCADE, limit_choices_to={'status': '17'}, related_name='consultant')    
     social_media = models.ForeignKey(SocialMedia, on_delete=models.CASCADE)
-    bank_details = models.ForeignKey(BankDetail, on_delete=models.CASCADE)
+    bank_details = models.ForeignKey(BankAccount, on_delete=models.CASCADE)
     alt_contact_person_name = models.CharField(_("Alternative Contact Person's Name"), max_length=255, blank=True, null=True)
     alt_contact_person_number = models.CharField(_("Alternative Contact Person's Phone"), max_length=125, blank=True, null=True)
-    alt_contact_person_relation = models.CharField(_("Relation with Alternative Contact Person"), max_length=255, blank=True, null=True)
-    is_joined = models.BooleanField(_("Is this consultant joined ?"),default=False)
+    alt_contact_person_relation = models.CharField(_("Relation with Alternative Contact Person"), max_length=255, blank=True, null=True)    
     number_of_projects = models.IntegerField()
-    number_of_current_projects = models.IntegerField() # maximum current project should not be greater than 2 - ask aboli
+    number_of_current_projects = models.IntegerField(validators=[MaxValueValidator(3)]) # maximum current project should not be greater than 3
     
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -88,7 +89,7 @@ class Consultant(models.Model):
         verbose_name_plural = _('consultants')
         
     def __str__(self):
-        return f"Consultant in {self.candidate}"
+        return f"Consultant {self.candidate.first_name}"
 
 
 class ConsultantContract(models.Model):
@@ -107,8 +108,7 @@ class ConsultantContract(models.Model):
     other_allowance = models.IntegerField(_("Other Allowance"), default=0)
     status = models.CharField(_('Status'),choices=CONTRACT_STATUS,max_length=125)
     pdf_link = models.URLField(_("Link to Signed PDF"), blank=True, null=True)
-    digi_sign_link = models.URLField(_("Digital Signature Link"), blank=True, null=True)
-    renewal_count = models.IntegerField(_("Number of times renewed")) # ask aboli - where should we keep the renewal count
+    digi_sign_link = models.URLField(_("Digital Signature Link"), blank=True, null=True)    
 
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -121,3 +121,6 @@ class ConsultantContract(models.Model):
 
     def __str__(self):
         return f'Contract for {self.consultant} on project {self.project}'
+    
+# ProjectRenewal
+# renewal_count = models.IntegerField(_("Number of times renewed")) # ask aboli - where should we keep the renewal count

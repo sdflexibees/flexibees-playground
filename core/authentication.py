@@ -7,21 +7,15 @@ from apps.candidate.models import Candidate
 from core.extra import generate_otp
 
 
-def user_authenticate(username, password):
 
-    """
-    Authenticate the user based on user type
-    1. on the basis of email + password
-    :param username: required
-    :param password: required
-    :return: if success AppUser object, otherwise pass
-    """
+def admin_authenticate(email, password, role):
     try:
-        user = AppUser.objects.get(username__iexact=username, active=True)
+        user = AdminUser.objects.get(email__iexact=email, roles__contains=[role], active=True, published=True)
         if user.check_password(password):
             return user
     except ObjectDoesNotExist:
-        return None
+        pass
+
 
 
 def candidate_authenticate(user_id, password):
@@ -45,3 +39,4 @@ def candidate_verify_otp(user_id, password):
             return user
     except ObjectDoesNotExist:
         return None
+

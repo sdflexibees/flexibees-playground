@@ -182,3 +182,5 @@ XlsxWriter==3.0.1
 zcrmsdk==3.0.0
 zipp==3.19.2
 zope.interface==5.2.0
+xhtml2pdf==0.2.3
+reportlab==3.6.1
