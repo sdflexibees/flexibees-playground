@@ -4,13 +4,13 @@ from django.shortcuts import get_object_or_404
 from apps.candidate.models import Candidate
 from apps.common.models import UserType, Users
 from apps.employer.permission_class import EmployerAuthentication
-from core.api_permissions import AppUserAuthentication
+from core.api_permissions import AdminAuthentication, AppUserAuthentication
 from core.response_format import message_response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from apps.finance.models import BankAccount, Consultant, ConsultantContract, SocialMedia
-from apps.finance.serializers import BankAccountSerializer, ConsultantContractListSerializer, ConsultantContractSerializer, ConsultantListSerializer, ConsultantSerializer, SocialMediaListSerializer, SocialMediaSerializer
+from apps.finance.models import BankAccount, SocialMedia
+from apps.finance.serializers import BankAccountListSerializer, BankAccountSerializer, SocialMediaListSerializer, SocialMediaSerializer
 
 from django.template.loader import get_template, render_to_string
 from xhtml2pdf import pisa
@@ -104,13 +104,13 @@ class SocialMediaAPI(ModelViewSet):
     @swagger_auto_schema(
         operation_description='Retrieve a social media profile by ID',
     )
-    def retrieve(self, request, id=None):
+    def retrieve(self, request, pk=None):
         """
         Retrieve social media profile by ID
         :param request: id
         :return: Profile details
         """
-        social_media = get_object_or_404(SocialMedia, id=id, active=True)
+        social_media = get_object_or_404(SocialMedia, id=pk, active=True)
         serializer = SocialMediaSerializer(social_media)
         return Response(serializer.data)
 
@@ -131,14 +131,14 @@ class SocialMediaAPI(ModelViewSet):
         request_body=SocialMediaSerializer,
         operation_description='Partially update a social media profile',
     )
-    def update(self, request, id=None):
+    def update(self, request, pk=None):
         """
         Edit social media profile
         :param request: id and new data
         :return: Updated profile details
         """
         print("request.data ",request.data)
-        social_media = get_object_or_404(SocialMedia, id=id, active=True)
+        social_media = get_object_or_404(SocialMedia, id=pk, active=True)
         serializer = SocialMediaSerializer(social_media, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -148,13 +148,13 @@ class SocialMediaAPI(ModelViewSet):
     @swagger_auto_schema(
         operation_description='Deactivate a social media profile',
     )
-    def destroy(self, request, id=None):
+    def destroy(self, request, pk=None):
         """
         Deactivate social media profile
         :param request: id
         :return: Deactivation message
         """
-        social_media = get_object_or_404(SocialMedia, id=id, active=True)
+        social_media = get_object_or_404(SocialMedia, id=pk, active=True)
         social_media.active = False
         social_media.save()
         return Response(message_response("Social media profile deactivated successfully"), status=200)
@@ -235,11 +235,11 @@ class BankAccountAPI(ModelViewSet):
     @swagger_auto_schema(
         operation_description='Retrieve a bank account by ID',
     )
-    def retrieve(self, request, id=None):
+    def retrieve(self, request, pk=None):
         """
         Retrieve bank account by ID
         """
-        bank_account = get_object_or_404(BankAccount, id=id, active=True)
+        bank_account = get_object_or_404(BankAccount, id=pk, active=True)
         serializer = BankAccountSerializer(bank_account)
         return Response(serializer.data)
 
@@ -251,18 +251,18 @@ class BankAccountAPI(ModelViewSet):
         List all active bank accounts
         """
         bank_accounts = BankAccount.objects.filter(active=True).order_by('-id')
-        serializer = BankAccountSerializer(bank_accounts, many=True)
+        serializer = BankAccountListSerializer(bank_accounts, many=True)
         return Response(serializer.data)
 
     @swagger_auto_schema(
         request_body=BankAccountSerializer,
         operation_description='Partially update a bank account',
     )
-    def partial_update(self, request, id=None):
+    def update(self, request, pk=None):
         """
         Edit bank account
         """
-        bank_account = get_object_or_404(BankAccount, id=id, active=True)
+        bank_account = get_object_or_404(BankAccount, id=pk, active=True)
         serializer = BankAccountSerializer(bank_account, data=request.data, partial=True)
         
         if serializer.is_valid():
@@ -273,148 +273,148 @@ class BankAccountAPI(ModelViewSet):
     @swagger_auto_schema(
         operation_description='Deactivate a bank account',
     )
-    def destroy(self, request, id=None):
+    def destroy(self, request, pk=None):
         """
         Deactivate bank account
         """
-        bank_account = get_object_or_404(BankAccount, id=id, active=True)
+        bank_account = get_object_or_404(BankAccount, id=pk, active=True)
         bank_account.active = False
         bank_account.save()
         return Response(message_response("Bank account deactivated successfully"), status=200)
     
     
-class ConsultantAPI(ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ConsultantSerializer
+# class ConsultantAPI(ModelViewSet):
+#     # permission_classes = [AdminAuthentication]
+#     serializer_class = ConsultantSerializer
 
-    def get_queryset(self):
-        return Consultant.objects.filter(active=True).order_by('-id')
+#     def get_queryset(self):
+#         return Consultant.objects.filter(active=True).order_by('-id')
 
-    @swagger_auto_schema(operation_description='List all active consultants')
-    def list(self, request):
-        queryset = self.get_queryset()
-        serializer = ConsultantListSerializer(queryset, many=True)
-        return Response(serializer.data)
+#     @swagger_auto_schema(operation_description='List all active consultants')
+#     def list(self, request):
+#         queryset = self.get_queryset()
+#         serializer = ConsultantListSerializer(queryset, many=True)
+#         return Response(serializer.data)
 
-    @swagger_auto_schema(operation_description='Retrieve consultant details by ID')
-    def retrieve(self, request, id=None):
-        consultant = get_object_or_404(Consultant, id=id, active=True)
-        serializer = ConsultantSerializer(consultant)
-        return Response(serializer.data)
+#     @swagger_auto_schema(operation_description='Retrieve consultant details by ID')
+#     def retrieve(self, request, pk=None):
+#         consultant = get_object_or_404(Consultant, id=pk, active=True)
+#         serializer = ConsultantSerializer(consultant)
+#         return Response(serializer.data)
 
-    @swagger_auto_schema(request_body=ConsultantSerializer, operation_description='Create a new consultant')
-    def create(self, request):
-        serializer = ConsultantSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(message_response("Consultant created successfully"), status=201)
-        return Response(serializer.errors, status=400)
+#     @swagger_auto_schema(request_body=ConsultantSerializer, operation_description='Create a new consultant')
+#     def create(self, request):
+#         serializer = ConsultantSerializer(data=request.data, context={'request': request})
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(message_response("Consultant created successfully"), status=201)
+#         return Response(serializer.errors, status=400)
 
-    @swagger_auto_schema(request_body=ConsultantSerializer, operation_description='Update consultant details')
-    def partial_update(self, request, id=None):
-        consultant = get_object_or_404(Consultant, id=id, active=True)
-        serializer = ConsultantSerializer(consultant, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
+#     @swagger_auto_schema(request_body=ConsultantSerializer, operation_description='Update consultant details')
+#     def partial_update(self, request, pk=None):
+#         consultant = get_object_or_404(Consultant, id=pk, active=True)
+#         serializer = ConsultantSerializer(consultant, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=400)
 
-    @swagger_auto_schema(operation_description='Deactivate consultant')
-    def destroy(self, request, id=None):
-        consultant = get_object_or_404(Consultant, id=id, active=True)
-        consultant.active = False
-        consultant.save()
-        return Response(message_response("Consultant deactivated successfully"), status=200)
+#     @swagger_auto_schema(operation_description='Deactivate consultant')
+#     def destroy(self, request, pk=None):
+#         consultant = get_object_or_404(Consultant, id=pk, active=True)
+#         consultant.active = False
+#         consultant.save()
+#         return Response(message_response("Consultant deactivated successfully"), status=200)
 
 
-class ConsultantContractAPI(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+# class ConsultantContractAPI(ModelViewSet):
+#     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        return ConsultantContract.objects.filter(active=True).order_by('-id')
+#     def get_queryset(self):
+#         return ConsultantContract.objects.filter(active=True).order_by('-id')
 
-    @swagger_auto_schema(operation_description='List all active consultant contracts')
-    def list(self, request):
-        queryset = self.get_queryset()
-        serializer = ConsultantContractListSerializer(queryset, many=True)
-        return Response(serializer.data)
+#     @swagger_auto_schema(operation_description='List all active consultant contracts')
+#     def list(self, request):
+#         queryset = self.get_queryset()
+#         serializer = ConsultantContractListSerializer(queryset, many=True)
+#         return Response(serializer.data)
 
-    @swagger_auto_schema(operation_description='Retrieve consultant contract details by ID')
-    def retrieve(self, request, id=None):
-        contract = get_object_or_404(ConsultantContract, id=id, active=True)
-        serializer = ConsultantContractSerializer(contract)
-        return Response(serializer.data)
+#     @swagger_auto_schema(operation_description='Retrieve consultant contract details by ID')
+#     def retrieve(self, request, pk=None):
+#         contract = get_object_or_404(ConsultantContract, id=pk, active=True)
+#         serializer = ConsultantContractSerializer(contract)
+#         return Response(serializer.data)
 
-    @swagger_auto_schema(request_body=ConsultantContractSerializer, operation_description='Create a new consultant contract')
-    def create(self, request):
-        serializer = ConsultantContractSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Consultant contract created successfully"}, status=201)
-        return Response(serializer.errors, status=400)
+#     @swagger_auto_schema(request_body=ConsultantContractSerializer, operation_description='Create a new consultant contract')
+#     def create(self, request):
+#         serializer = ConsultantContractSerializer(data=request.data, context={'request': request})
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "Consultant contract created successfully"}, status=201)
+#         return Response(serializer.errors, status=400)
 
-    @swagger_auto_schema(request_body=ConsultantContractSerializer, operation_description='Update consultant contract details')
-    def partial_update(self, request, id=None):
-        contract = get_object_or_404(ConsultantContract, id=id, active=True)
-        serializer = ConsultantContractSerializer(contract, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
+#     @swagger_auto_schema(request_body=ConsultantContractSerializer, operation_description='Update consultant contract details')
+#     def partial_update(self, request, pk=None):
+#         contract = get_object_or_404(ConsultantContract, id=pk, active=True)
+#         serializer = ConsultantContractSerializer(contract, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=400)
 
-    @swagger_auto_schema(operation_description='Deactivate consultant contract')
-    def destroy(self, request, id=None):
-        contract = get_object_or_404(ConsultantContract, id=id, active=True)
-        contract.active = False
-        contract.save()
-        return Response({"message": "Consultant contract deactivated successfully"}, status=200)
+#     @swagger_auto_schema(operation_description='Deactivate consultant contract')
+#     def destroy(self, request, pk=None):
+#         contract = get_object_or_404(ConsultantContract, id=pk, active=True)
+#         contract.active = False
+#         contract.save()
+#         return Response({"message": "Consultant contract deactivated successfully"}, status=200)
     
     
-def render_to_pdf(template_src, context_dict):
-    template = get_template(template_src)
-    html = template.render(context_dict)
-    response = HttpResponse(content_type='application/pdf')
-    pisa_status = pisa.CreatePDF(html, dest=response)
+# def render_to_pdf(template_src, context_dict):
+#     template = get_template(template_src)
+#     html = template.render(context_dict)
+#     response = HttpResponse(content_type='application/pdf')
+#     pisa_status = pisa.CreatePDF(html, dest=response)
     
-    if pisa_status.err:
-        return HttpResponse('We had some errors while generating the PDF.', status=500)
+#     if pisa_status.err:
+#         return HttpResponse('We had some errors while generating the PDF.', status=500)
     
-    return response
+#     return response
 
 
-class GenerateContractPDF(View):
-    def get(self, request, id=None):
-        # Fetch the contract instance
-        contract = get_object_or_404(ConsultantContract, id=id)
+# class GenerateContractPDF(View):
+#     def get(self, request, pk=None):
+#         # Fetch the contract instance
+#         contract = get_object_or_404(ConsultantContract, id=pk)
 
-        # Define the appropriate template based on contract type
-        if contract.contract_type == 'Internal Consultant':
-            template_name = 'contracts/FlexiBees_Agreement.html'
-        elif contract.contract_type == 'External -Resourcing - Fixed Working Hours':
-            template_name = 'contracts/external_contract2_1.html'
-        elif contract.contract_type == 'External -Resourcing - Work Basis':
-            template_name = 'contracts/external_contract2.html'
-        elif contract.contract_type == 'External -Resourcing - Hourly Basis':
-            template_name = 'contracts/external_contract1.html'
-        elif contract.contract_type == 'External - Placement - One Time Fee':
-            template_name = 'contracts/external_consultant_agreement.html'
-        else:
-            # Default template if no contract type is selected or unknown type
-            template_name = 'contracts/external_consultant.html'
+#         # Define the appropriate template based on contract type
+#         if contract.contract_type == 'Internal Consultant':
+#             template_name = 'contracts/FlexiBees_Agreement.html'
+#         elif contract.contract_type == 'External -Resourcing - Fixed Working Hours':
+#             template_name = 'contracts/external_contract2_1.html'
+#         elif contract.contract_type == 'External -Resourcing - Work Basis':
+#             template_name = 'contracts/external_contract2.html'
+#         elif contract.contract_type == 'External -Resourcing - Hourly Basis':
+#             template_name = 'contracts/external_contract1.html'
+#         elif contract.contract_type == 'External - Placement - One Time Fee':
+#             template_name = 'contracts/external_consultant_agreement.html'
+#         else:
+#             # Default template if no contract type is selected or unknown type
+#             template_name = 'contracts/external_consultant.html'
 
-        # Prepare the context for rendering the PDF
-        context = {
-            'candidate_name': contract.candidate_name,
-            'client_name': contract.client_name,
-            'duration': contract.duration,
-            'amount': contract.amount,
-            'candidate_address': contract.candidate_address,
-            'candidate_email': contract.candidate_email,
-            'contract_date': contract.contract_date,
-            'commence_date': contract.commence_date,
-            'contract_end_date': contract.contract_end_date,
-            'flexibees_details': FLEXIBEES_DETAILS,
-        }
+#         # Prepare the context for rendering the PDF
+#         context = {
+#             'candidate_name': contract.candidate_name,
+#             'client_name': contract.client_name,
+#             'duration': contract.duration,
+#             'amount': contract.amount,
+#             'candidate_address': contract.candidate_address,
+#             'candidate_email': contract.candidate_email,
+#             'contract_date': contract.contract_date,
+#             'commence_date': contract.commence_date,
+#             'contract_end_date': contract.contract_end_date,
+#             'flexibees_details': FLEXIBEES_DETAILS,
+#         }
 
-        # Render the selected template to PDF
-        return render_to_pdf(template_name, context)
+#         # Render the selected template to PDF
+#         return render_to_pdf(template_name, context)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.finance.models import BankAccount, Consultant, ConsultantContract, SocialMedia
+from apps.finance.models import BankAccount, Consultant, SocialMedia
 
 class SocialMediaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -80,10 +80,9 @@ class ConsultantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consultant
         fields = [
-            'candidate', 'candidate_name', 'social_media', 'bank_details',
+            'candidate', 'candidate_name',
             'alt_contact_person_name', 'alt_contact_person_number',
-            'alt_contact_person_relation', 'number_of_projects',
-            'number_of_current_projects'
+            'alt_contact_person_relation'
         ]
 
 class ConsultantListSerializer(serializers.ModelSerializer):
@@ -96,26 +95,26 @@ class ConsultantListSerializer(serializers.ModelSerializer):
         ]
         
 
-class ConsultantContractSerializer(serializers.ModelSerializer):
-    consultant_name = serializers.CharField(source='consultant.candidate.first_name', read_only=True)
-    project_name = serializers.CharField(source='project.name', read_only=True)
-    job_title = serializers.CharField(source='job.title', read_only=True)
+# class ConsultantContractSerializer(serializers.ModelSerializer):
+#     consultant_name = serializers.CharField(source='consultant.candidate.first_name', read_only=True)
+#     project_name = serializers.CharField(source='project.name', read_only=True)
+#     job_title = serializers.CharField(source='job.title', read_only=True)
 
-    class Meta:
-        model = ConsultantContract
-        fields = [
-            'id', 'consultant', 'consultant_name', 'project', 'project_name',
-            'job', 'job_title', 'contract_type', 'notice_period', 'created_date',
-            'signed_date', 'start_date', 'end_date', 'food_allowance', 
-            'travel_allowance', 'phone_allowance', 'other_allowance'
-        ]
+#     class Meta:
+#         model = ConsultantContract
+#         fields = [
+#             'id', 'consultant', 'consultant_name', 'project', 'project_name',
+#             'job', 'job_title', 'contract_type', 'notice_period', 'created_date',
+#             'signed_date', 'start_date', 'end_date', 'food_allowance', 
+#             'travel_allowance', 'phone_allowance', 'other_allowance'
+#         ]
         
         
-class ConsultantContractListSerializer(serializers.ModelSerializer):
-    consultant_name = serializers.CharField(source='consultant.candidate.first_name', read_only=True)
-    project_name = serializers.CharField(source='project.name', read_only=True)
+# class ConsultantContractListSerializer(serializers.ModelSerializer):
+#     consultant_name = serializers.CharField(source='consultant.candidate.first_name', read_only=True)
+#     project_name = serializers.CharField(source='project.name', read_only=True)
 
-    class Meta:
-        model = ConsultantContract
-        fields = ['id', 'consultant_name', 'project_name', 'contract_type', 'start_date', 'end_date']
+#     class Meta:
+#         model = ConsultantContract
+#         fields = ['id', 'consultant_name', 'project_name', 'contract_type', 'start_date', 'end_date']
 
