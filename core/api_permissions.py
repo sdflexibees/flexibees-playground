@@ -57,7 +57,7 @@ class AdminAuthentication(BasePermission):
                     )['bi'] != '' else ''
             role = jwt_decode_handler(request.META['HTTP_AUTHORIZATION']).get('ci', '')
             request.user = AdminUser.objects.get(id=int(user_id), password=pwd, active=True, published=True,
-                                                 roles__contains=[role])
+                                                    roles__contains=[role])
             request.role = role
             return True
         except:

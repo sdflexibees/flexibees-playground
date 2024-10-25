@@ -10,6 +10,8 @@ from django.utils import timezone
 from core.extra import make_title, make_lower
 from core.model_choices import LIFESTYLE_RESPONSES_CHOICES, CANDIDATE_STATES
 from core.validations import mobile_regex
+from django.utils.translation import gettext_lazy as _
+
 
 
 class Candidate(models.Model):
@@ -201,8 +203,8 @@ def update_experiences(sender, instance, created, **kwargs):
     instance.candidate.years_of_break = round(float('{0.years}.{0.months}'.format(years_of_break)), 2)
     instance.candidate.relevantexp = final_dict
     roles = list(EmploymentDetail.objects.filter(active=True, candidate=instance.candidate).
-                 values_list('role__id', flat=True).
-                 distinct('role__id'))
+                values_list('role__id', flat=True).
+                distinct('role__id'))
     instance.candidate.roles.set(roles)
     instance.candidate.profile_last_updated = timezone.now()
     instance.candidate.save()

@@ -7,7 +7,7 @@ This repo is specifically for candidate specific operations
 
 ------------
 ### 1. Create of virtual environment
-Open the terminal and enter the following command:<br />`$ virtualenv venv`<br />
+Open the terminal and enter the following command:`pyenv exec python -m venv venv` or  <br />`$ virtualenv venv`<br />
 Once the environment has been created, activate the environment:<br />`$ source venv activate`
 
 ------------
@@ -24,7 +24,7 @@ pip install --upgrade backports.zoneinfo
 Enter the following command in the terminal:<br />`$ pip install -r requirements.txt`   [Use cmd , not VSCode]
 
 ------------
-
+nv
 ### 4. Run the development server
 To start the development server, run the following command:<br />`$ python manage.py runserver` <br />
 By default the server runs on port`8000`<br />

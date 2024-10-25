@@ -293,7 +293,7 @@ class CandidateAccountsAPI(ModelViewSet):
             phone = request.data.get('phone')
             check_invalid([country_code, phone])
             user_obj = get_object_or_404(Candidate, phone__iexact=phone,
-                                         country_code__iexact=country_code, active=True)
+                                            country_code__iexact=country_code, active=True)
         otp = generate_otp()
         if 'email' in request.data:
             subject = 'Email Verification'

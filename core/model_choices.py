@@ -144,6 +144,7 @@ JOB_DRAFT_STATUS = (
 )
 USER_TYPE_CHOICES = (
     ("1","Employer"),
+    ("2","Candidate"),
 )
 CANDIDATE_STATES = (
     ("1", "Signed Up"),

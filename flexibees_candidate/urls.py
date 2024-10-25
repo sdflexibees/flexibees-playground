@@ -58,12 +58,25 @@ web_schema_view1 = get_schema_view(
     # url='https://candidate.flexibees.com/'
 )
 
+web_schema_view2 = get_schema_view(
+    openapi.Info(
+        title="Website API",
+        default_version='v1',
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+    patterns=[path('api/website/', include('apps.finance.urls'))],
+    url='http://127.0.0.1:8000/'
+    # url='https://candidate.flexibees.com/'
+)
+
 from apps.admin_app.views import TimeoutAPI
 urlpatterns = [
     path('timeout/<int:time>/', TimeoutAPI.as_view({'get': 'timeout'})),
     path('', web_schema_view.with_ui('swagger', cache_timeout=0), name='admin-swagger-ui'),
     path('candidate-docs/', mobile_schema_view.with_ui('swagger', cache_timeout=0), name='candidate-swagger-ui'),
     path('website-docs/', web_schema_view1.with_ui('swagger', cache_timeout=0), name='website-swagger-ui'),
+    path('finance-docs/', web_schema_view1.with_ui('swagger', cache_timeout=0), name='finance-swagger-ui'),
     path('admin/', admin.site.urls),
     path('api/admin/', include('apps.admin_app.urls')),
     path('api/candidate/', include('apps.candidate.urls')),
@@ -73,5 +86,6 @@ urlpatterns = [
     # Proxy all employer-related URLs to the external server
     re_path(r'^api/employer/.*$', proxy_function, name='employer-proxy'),
     path('api/common/', include('apps.common.urls')),
+    path('api/finance/', include('apps.finance.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + \
             static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
