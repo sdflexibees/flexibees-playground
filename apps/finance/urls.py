@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.finance.views import BankAccountAPI, ConsultantAPI, SocialMediaAPI
+from apps.finance.views import BankAccountAPI, ConsultantAPI, ConsultantContractAPI, GenerateContractPDF, SocialMediaAPI
 
 urlpatterns = [
     path('social-media/', SocialMediaAPI.as_view({'post': 'create'}), name='socialmedia-create'),
@@ -14,4 +14,9 @@ urlpatterns = [
     path('consultant/', ConsultantAPI.as_view({'post': 'create'}), name='consultant-create'),
     path('consultant/<int:id>/', ConsultantAPI.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='consultant-detail'),  # Combining retrieve, update, and delete
     path('consultant/list/', ConsultantAPI.as_view({'get': 'list'}), name='consultant-list'),
+    
+    path('consultant/contract/', ConsultantContractAPI.as_view({'post': 'create'}), name='consultant-create'),
+    path('consultant/contract/<int:id>/', ConsultantContractAPI.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='consultant-detail'),  # Combining retrieve, update, and delete
+    path('consultant/contract/list/', ConsultantContractAPI.as_view({'get': 'list'}), name='consultant-list'),
+    path('generate/contract/pdf/<int:pk>/', GenerateContractPDF.as_view(), name='generate_contract_pdf'),
 ]

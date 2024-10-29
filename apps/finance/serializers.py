@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.candidate.models import Candidate
-from apps.finance.models import BankAccount, Consultant, SocialMedia
+from apps.finance.models import BankAccount, Consultant, ConsultantContract, SocialMedia
 
 class SocialMediaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -74,7 +74,6 @@ class BankAccountListSerializer(serializers.ModelSerializer):
         
         
 class ConsultantSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Consultant
         fields = [
@@ -85,35 +84,47 @@ class ConsultantSerializer(serializers.ModelSerializer):
         ]
 
 class ConsultantListSerializer(serializers.ModelSerializer):
-    candidate_name = serializers.CharField(source='candidate.first_name', read_only=True)
+    candidate_name = serializers.SerializerMethodField()
     class Meta:
         model = Consultant
         fields = [
             'id', 'candidate', 'candidate_name', 'number_of_projects',
             'number_of_current_projects', 'active'
         ]
-        
+    def get_candidate_name(self, obj):
+        full_name = f"{obj.candidate.first_name} {obj.candidate.last_name}"  # Concatenate first and last names
+        return f"{full_name}"  # Display both first name and full name
 
-# class ConsultantContractSerializer(serializers.ModelSerializer):
-#     consultant_name = serializers.CharField(source='consultant.candidate.first_name', read_only=True)
-#     project_name = serializers.CharField(source='project.name', read_only=True)
-#     job_title = serializers.CharField(source='job.title', read_only=True)
 
-#     class Meta:
-#         model = ConsultantContract
-#         fields = [
-#             'id', 'consultant', 'consultant_name', 'project', 'project_name',
-#             'job', 'job_title', 'contract_type', 'notice_period', 'created_date',
-#             'signed_date', 'start_date', 'end_date', 'food_allowance', 
-#             'travel_allowance', 'phone_allowance', 'other_allowance'
-#         ]
+class ConsultantContractSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConsultantContract
+        fields = [
+            'consultant', 'project', 
+            'job', 'contract_type', 'notice_period',
+            'start_date', 'end_date', 'food_allowance', 
+            'travel_allowance', 'phone_allowance', 'other_allowance'
+        ]
         
         
-# class ConsultantContractListSerializer(serializers.ModelSerializer):
-#     consultant_name = serializers.CharField(source='consultant.candidate.first_name', read_only=True)
-#     project_name = serializers.CharField(source='project.name', read_only=True)
-
-#     class Meta:
-#         model = ConsultantContract
-#         fields = ['id', 'consultant_name', 'project_name', 'contract_type', 'start_date', 'end_date']
+class ConsultantContractListSerializer(serializers.ModelSerializer):
+    consultant_name = serializers.SerializerMethodField()
+    project_name = serializers.CharField(source='project.deal_name', read_only=True)
+    job_details = serializers.SerializerMethodField()
+    contract_type_name = serializers.SerializerMethodField()
+    class Meta:
+        model = ConsultantContract
+        fields = ['id', 'consultant_name', 'project_name','job_details', 'contract_type_name', 'start_date', 'end_date']
+    
+    def get_consultant_name(self, obj):
+        full_name = f"{obj.consultant.candidate.first_name} {obj.consultant.candidate.last_name}"  # Concatenate first and last names
+        return f"{full_name}"  # Display both first name and full name
+    
+    def get_job_details(self, obj):
+        job_role_function = f"{obj.job.function} - {obj.job.role}"  # Concatenate first and last names
+        return f"{job_role_function}"  # Display both function and role 
+    
+    def get_contract_type_name(self, obj):
+        # This will return the display value of contract_type
+        return obj.get_contract_type_display()
 

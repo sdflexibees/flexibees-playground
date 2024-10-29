@@ -3,8 +3,8 @@
 This repo is specifically for candidate specific operations 
 
 ### System Requirements
-- Python 3+, (use python 3.8.18 or 3.8.20)
-
+- Python 3+, (use python 3.8.18 or 3.8.20)   [python --version]
+- pip 23
 ------------
 ### 1. Create of virtual environment
 Open the terminal and enter the following command:`pyenv exec python -m venv venv` or  <br />`$ virtualenv venv`<br />
