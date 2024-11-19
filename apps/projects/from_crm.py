@@ -17,7 +17,7 @@ from core.response_format import message_response
 from core.response_messages import update_proj_detail, updated, role_model_validate, something_went_wrong
 from core.zoho import get_crm_data
 from apps.admin_app.views import api_logging
-from flexibees_candidate.settings import MAX_CHARS_ID, MAX_CHARS_DEAL_NAME, MAX_CHARS_ACCOUNT_NAME, MAX_CHARS_CONTACT_NAME, MAX_CHARS_ROLE_TYPE, MAX_CHARS_MODEL_TYPE, MAX_CHARS_FLEXI_DETAILS, MAX_CHARS_STAGE, FIRST_STAGE_STATUS
+from flexibees_finance.settings import MAX_CHARS_ID, MAX_CHARS_DEAL_NAME, MAX_CHARS_ACCOUNT_NAME, MAX_CHARS_CONTACT_NAME, MAX_CHARS_ROLE_TYPE, MAX_CHARS_MODEL_TYPE, MAX_CHARS_FLEXI_DETAILS, MAX_CHARS_STAGE, FIRST_STAGE_STATUS
 
 
 def has_crm_project_in_db(existing_records, zoho_id):

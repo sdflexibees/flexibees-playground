@@ -5,6 +5,7 @@ from apps.candidate.mobility_views import CandidateProjectHistoryAPI, ProjectDet
     CandidateDomainsAPI, CandidateSupportAPI, CandidateLanguageAPI, CandidateSelfAssessmentAPI, \
     CandidateInterestStatusAPI, CandidateAssignmentAPI, CandidateInterviewScheduledAPI, BreakAPI, AppVersionAPI, \
     CandidateLifeStyleAPI, CandidateHomePageAPI, TestAPI, ReferralAPI, CandidateSignUp, CandidateCityAPI
+from apps.candidate.views import AllCandidateViewSet
 from apps.notifications.views import DeviceRegisterAPI, FcmTokenRegister, LogoutAPI, SamplePushAPI, CandidateNotificationAPI
 
 
@@ -106,4 +107,6 @@ urlpatterns = [
     # country and city dropdown urls
     path('countries-list/', CandidateCityAPI.as_view({'get': 'get_countries'})),
     path('cities-list/<int:country>/', CandidateCityAPI.as_view({'get': 'get_cities'})),
+
+    path("candidates/list",AllCandidateViewSet.as_view({"get":"list"})),
 ]

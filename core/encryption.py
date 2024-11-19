@@ -1,7 +1,7 @@
 import jwt
 from cryptography.fernet import Fernet
 
-from flexibees_candidate.settings import SECRET_CIPHER_KEY, SECRET_KEY
+from flexibees_finance.settings import SECRET_CIPHER_KEY, SECRET_KEY
 
 CIPHER = Fernet(SECRET_CIPHER_KEY)
 

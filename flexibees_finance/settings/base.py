@@ -1,5 +1,5 @@
 """
-Django settings for flexibees_candidate project.
+Django settings for flexibees_finance project.
 """
 import os
 from pathlib import Path
@@ -61,7 +61,7 @@ MIDDLEWARE = [
 
 # DJANGO_CPROFILE_MIDDLEWARE_REQUIRE_STAFF = False
 
-ROOT_URLCONF = 'flexibees_candidate.urls'
+ROOT_URLCONF = 'flexibees_finance.urls'
 
 TEMPLATES = [
     {
@@ -82,9 +82,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'flexibees_candidate.wsgi.application'
+WSGI_APPLICATION = 'flexibees_finance.wsgi.application'
 
-ASGI_APPLICATION = 'flexibees_candidate.asgi.application'
+ASGI_APPLICATION = 'flexibees_finance.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {

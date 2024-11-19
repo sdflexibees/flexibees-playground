@@ -5,39 +5,6 @@ ADMIN_LEVEL_CHOICES = (
     (3, 'Expert'),
 )
 
-PROJECT_MANDATORY_FIELDS = {
-    'min_total_experience_needed': "Minimum total experience",
-    'max_total_experience_needed': "Maximum total experience",
-    'educational_constraints': "Education constraints",
-    'must_have_skills': "Must have skills",
-    'company_brief': "Company brief",
-    'detailed_job_description': "Detailed job description",
-    'min_no_of_working_hours': "Minimum no. of working hours",
-    'max_no_of_working_hours': "Maximum no. of working hours",
-    'working_hours_duration_unit': "Working hours duration",
-    'project_duration': "Project duration",
-    'project_duration_unit': "Project duration unit",
-    'sale_type': "Sale type",
-    'target_audience': "Target audience",
-    'describe_more': "Description",
-    'lead_expresses_interest': "Lead expresses interest",
-    'no_of_positions': "No. of positions",
-    'own_contact_required': "Own contact required",
-    'language': "Language",
-    'content_type': "Content type",
-    'quantum_min': "Minimum quantum",
-    'quantum_max': "Maximum quantum",
-    'quantum_unit': "Quantum unit",
-    'word_min': "Minimum words",
-    'word_max': "Maximum words",
-    'word_unit': "Word unit",
-    'budget': "Budget",
-    'content_duration_min': "Minimum content duration",
-    'content_duration_max': "Maximum content duration",
-    'content_duration_unit': "Content duration unit",
-    'role': "Role"
-}
-
 LIFESTYLE_RESPONSES_CHOICES = (
         ('1_a', 'Studying part time'),
         ('1_b', 'Studying full time'),
@@ -64,23 +31,6 @@ LIFESTYLE_RESPONSES_CHOICES = (
         ('4_c', 'Full time help'),
         ('4_d', 'Full time live-in-help'),
     )
-
-
-# This Life style question are not included in any model
-# It is only used to fetch the questions based on answer given by candidate
-LIFESTYLE_QUESTION_CHOICES = {
-    '1': 'Stage of life you are in right now?',
-    '2': 'Something about people in your life',
-    '3': 'I Live with',
-    '4': 'Your house hold responsibilities are shared by?'
-}
-
-
-DEVICE_TYPES = (
-        ('android', 'android'),
-        ('ios', 'ios'),
-    )
-
 # Employer Apps
 CUSTUM_ROLES_SKILLS_STATUS = (
     ("1", "pending"),
@@ -144,7 +94,6 @@ JOB_DRAFT_STATUS = (
 )
 USER_TYPE_CHOICES = (
     ("1","Employer"),
-    ("2","Candidate"),
 )
 CANDIDATE_STATES = (
     ("1", "Signed Up"),
@@ -207,11 +156,23 @@ CANDIDATE_JOB_STATUS = (
     (2,"In Review"),
     (3,"Selected"),
     (4,"Rejected"),
-    (5, "Position Filled Rejected")
+    (5, "Position Filled Rejected"),
+    (6,"Notification Sent"),
 )
 
 INTERVIEW_STATUS =(
     ("1", "Scheduled"),
     ("2", "Cleared"),
     ("3", "Rejected"),
+)
+CANDIDATE_JOINING_STATUS = (
+    ("1","NOW"),
+    ("2","LATER"),
+)
+EMPLOYER_OPERATED_GLOBALLY = (
+    ("1", "Domestic"),
+    ("2", "International")
+)
+EMPLOYER_JOB_PRICING_CURRENCY = (
+    ("1", "INR"),("2","USD")
 )

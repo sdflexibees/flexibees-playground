@@ -1,7 +1,7 @@
 import uuid
 import boto3
 
-from flexibees_candidate.settings import AWS_STORAGE_BUCKET_NAME, AWS_S3_CUSTOM_DOMAIN, AWS_ACCESS_KEY_ID, \
+from flexibees_finance.settings import AWS_STORAGE_BUCKET_NAME, AWS_S3_CUSTOM_DOMAIN, AWS_ACCESS_KEY_ID, \
     AWS_SECRET_ACCESS_KEY
 
 session = boto3.session.Session(aws_access_key_id=AWS_ACCESS_KEY_ID,

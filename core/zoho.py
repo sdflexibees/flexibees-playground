@@ -4,7 +4,7 @@ import http.client
 
 from apps.admin_app.models import ZOHOToken
 from apps.admin_app.views import api_logging
-from flexibees_candidate.settings import ZOHO_REFRESH_TOKEN, ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET
+from flexibees_finance.settings import ZOHO_REFRESH_TOKEN, ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET
 
 
 def get_access_token():

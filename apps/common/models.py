@@ -3,6 +3,7 @@ from apps.admin_app.models import Role, Skill
 from core.model_choices import CUSTUM_ROLES_SKILLS_STATUS, USER_TYPE_CHOICES
 from core.extra import make_title, make_lower
 from django.contrib.auth.hashers import make_password, check_password
+
 # Create your models here.
 
 
@@ -19,6 +20,7 @@ class UserType(models.Model):
     
     class Meta:
         db_table = 'types'
+        app_label = 'common'
 
 
 class Users(models.Model):
@@ -58,11 +60,12 @@ class Users(models.Model):
 
     class Meta:
         db_table = 'user_infos'
+        app_label = 'common'
 
 class RoleMapping(models.Model):
     function = models.ForeignKey("admin_app.Function", on_delete=models.DO_NOTHING)
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING)
-    priority = models.PositiveSmallIntegerField(default= 0 )
+    priority = models.SmallIntegerField(default=0)
     
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -73,6 +76,7 @@ class RoleMapping(models.Model):
     
     class Meta:
         db_table = 'roles_mappings'
+        app_label = 'common'
 
 
 class SkillMapping(models.Model):
@@ -88,6 +92,7 @@ class SkillMapping(models.Model):
     
     class Meta:
         db_table = 'skills_mappings'
+        app_label = 'common'
 
 class CustomRole(models.Model):
 
@@ -95,7 +100,7 @@ class CustomRole(models.Model):
     role_name = models.CharField(max_length=50 ,)
     status = models.CharField(max_length=5, choices=CUSTUM_ROLES_SKILLS_STATUS, default=CUSTUM_ROLES_SKILLS_STATUS[0][0])
     action_date=models.DateTimeField(null=True)
-    created_by = models.ForeignKey('employer.employer',on_delete=models.DO_NOTHING)
+    created_by = models.ForeignKey('employer.Employer',on_delete=models.DO_NOTHING)
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -109,13 +114,14 @@ class CustomRole(models.Model):
             models.Index(fields=['role_name'], name='idx_custom_role_names'),
             ]
         db_table = 'custom_role_mappings'
+        app_label = 'common'
 
 
 class CustomSkill(models.Model):
     skill_name = models.CharField(max_length=150)
     status = models.CharField(max_length=5, choices=CUSTUM_ROLES_SKILLS_STATUS, default=CUSTUM_ROLES_SKILLS_STATUS[0][0])
     action_date=models.DateTimeField(null=True)
-    created_by = models.ForeignKey('employer.employer', on_delete=models.DO_NOTHING)
+    created_by = models.ForeignKey('employer.Employer', on_delete=models.DO_NOTHING)
     
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -129,3 +135,18 @@ class CustomSkill(models.Model):
             models.Index(fields=['skill_name'], name='idx_custom_skill_names'),
             ]
         db_table = 'custom_skill_mappings'
+        app_label = 'common'
+
+
+class CandidateInterviewSlot(models.Model):
+    candidate_job_status = models.ForeignKey("employer.CandidateJobStatus", on_delete=models.DO_NOTHING, null=False)
+    starting_time = models.DateTimeField(null=False)
+    ending_time = models.DateTimeField(null=False)
+    is_active = models.BooleanField(default=True, null=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = models.DateTimeField(auto_now=True, null=False)
+
+    class Meta:
+        db_table = 'candidate_interview_slots'
+        app_label = 'common'
+

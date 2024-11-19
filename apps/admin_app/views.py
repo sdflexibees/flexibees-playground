@@ -59,6 +59,9 @@ class AdminLoginAPI(ModelViewSet):
         email = request.data.get('email')
         password = request.data.get('password')
         role = request.data.get('admin_role')
+        print("email ",email)
+        print("password ",password)
+        print("role ",role)
         check_invalid([email, password, role])
         user = admin_authenticate(email, password, role)
         if user:

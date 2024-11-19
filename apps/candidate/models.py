@@ -1,17 +1,9 @@
-from dateutil import relativedelta as rdelta
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.fields.jsonb import JSONField as JSONBField
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils import timezone
-
 from core.extra import make_title, make_lower
-from core.model_choices import LIFESTYLE_RESPONSES_CHOICES, CANDIDATE_STATES
+from core.model_choices import LIFESTYLE_RESPONSES_CHOICES, CANDIDATE_STATES, CANDIDATE_JOINING_STATUS
 from core.validations import mobile_regex
-from django.utils.translation import gettext_lazy as _
-
 
 
 class Candidate(models.Model):
@@ -79,6 +71,8 @@ class Candidate(models.Model):
     last_notified = models.DateTimeField(null=True)
     previous_email = models.EmailField(blank=True)
     status = models.CharField(max_length=3 , choices=CANDIDATE_STATES , null=True)
+    function = models.ForeignKey('admin_app.Function', on_delete=models.DO_NOTHING, null=True)
+    joining_status = models.CharField(max_length= 3, choices= CANDIDATE_JOINING_STATUS, null= True)
 
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -114,9 +108,13 @@ class Candidate(models.Model):
     def __str__(self):
         # return str(self.id) + ' - ' + str(self.email)
         return str(self.id)
+    
+    class Meta:
+        app_label='candidate'
+        db_table = 'candidate_candidate'
 
 
-class EmploymentDetail(models.Model):
+class Employmentdetail(models.Model):
     EMPLOYMENT_TYPE_CHOICES = (
         ('Full Time Employee', 'Full Time Employee'),
         ('Full Time Contractor', 'Full Time Contractor'),
@@ -143,71 +141,9 @@ class EmploymentDetail(models.Model):
 
     def __str__(self):
         return self.candidate.first_name
-
-
-@receiver(post_save, sender=EmploymentDetail)
-def update_experiences(sender, instance, created, **kwargs):
-    user_total_experiences = EmploymentDetail.objects.filter(candidate=instance.candidate, active=True)
-    exp_list = []
-    total_exp = rdelta.relativedelta(years=0, months=0)
-    years_of_break = rdelta.relativedelta(years=0, months=0)
-    for each_exp in user_total_experiences:
-        start = each_exp.start_date
-        end = timezone.now().date() if each_exp.currently_working else each_exp.end_date
-        exp_list.append({
-            'start': start,
-            'end': end,
-            'role': 'r' + str(each_exp.role.id),
-        })
-    newlist = sorted(exp_list, key=lambda k: k['start'])
-    final_dict = {'total': []}
-    for each_item in newlist:
-        if each_item['role'] not in final_dict:
-            final_dict[each_item['role']] = [[each_item['start'], each_item['end']]]
-        else:
-            last_role_range = final_dict[each_item['role']][-1]
-            if each_item['start'] > last_role_range[1]:
-                final_dict[each_item['role']].append([each_item['start'], each_item['end']])
-            else:
-                if each_item['start'] <= last_role_range[0]:
-                    last_role_range[0] = each_item['start']
-                if each_item['end'] >= last_role_range[1]:
-                    last_role_range[1] = each_item['end']
-                final_dict[each_item['role']][-1] = last_role_range
-        if len(final_dict['total']) == 0:
-            final_dict['total'].append([each_item['start'], each_item['end']])
-        else:
-            last_exp_range = final_dict['total'][-1]
-            if each_item['start'] > last_exp_range[1]:
-                final_dict['total'].append([each_item['start'], each_item['end']])
-            else:
-                if each_item['start'] <= last_exp_range[0]:
-                    last_exp_range[0] = each_item['start']
-                if each_item['end'] >= last_exp_range[1]:
-                    last_exp_range[1] = each_item['end']
-                final_dict['total'][-1] = last_exp_range
-    for a in range(len(final_dict['total'])):
-        exp = rdelta.relativedelta(final_dict['total'][a][1], final_dict['total'][a][0])
-        total_exp += exp
-        try:
-            years_of_break += rdelta.relativedelta(final_dict['total'][a + 1][0], final_dict['total'][a][1])
-        except:
-            pass
-    final_dict.pop('total')
-    for b, value in final_dict.items():
-        each_role_exp = rdelta.relativedelta(years=0, months=0)
-        for each in value:
-            each_role_exp += rdelta.relativedelta(each[1], each[0])
-        final_dict[b] = round(float('{0.years}.{0.months}'.format(each_role_exp)), 2)
-    instance.candidate.total_year_of_experience = round(float('{0.years}.{0.months}'.format(total_exp)), 2)
-    instance.candidate.years_of_break = round(float('{0.years}.{0.months}'.format(years_of_break)), 2)
-    instance.candidate.relevantexp = final_dict
-    roles = list(EmploymentDetail.objects.filter(active=True, candidate=instance.candidate).
-                values_list('role__id', flat=True).
-                distinct('role__id'))
-    instance.candidate.roles.set(roles)
-    instance.candidate.profile_last_updated = timezone.now()
-    instance.candidate.save()
+    class Meta:
+        app_label='candidate'
+        db_table = 'candidate_employmentdetail'
 
 
 class Education(models.Model):
@@ -227,133 +163,11 @@ class Education(models.Model):
 
     def __str__(self):
         return self.candidate.first_name
+    
+    class Meta:
+        app_label='candidate'
+        db_table = 'candidate_education'
 
-
-class Certification(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    issued_by = models.CharField(max_length=200)
-    issue_date = models.PositiveIntegerField()
-
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.candidate.first_name
-
-
-class CandidateLanguage(models.Model):
-    PROFICIENCY_CHOICES = (
-        ('Beginner', 'Beginner'),
-        ('Intermediate', 'Intermediate'),
-        ('Advanced', 'Advanced'),
-        ('Expert', 'Expert'),
-    )
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    language = models.ForeignKey('admin_app.Language', on_delete=models.CASCADE)
-    proficiency = models.CharField(max_length=20, choices=PROFICIENCY_CHOICES, default='Beginner')
-    read = models.BooleanField(default=False)
-    write = models.BooleanField(default=False)
-    speak = models.BooleanField(default=False)
-
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.candidate.first_name
-
-
-class CandidateAttachment(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    attachment = models.URLField(null=True, blank=True)
-    title = models.CharField(max_length=250, null=True, blank=True)
-
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.candidate.first_name
-
-
-class Shortlist(models.Model):
-    STATUS_CHOICES = (
-        (1, 'Notification not sent'),
-        (2, 'Notification sent/Waiting for response'),
-    )
-    project = models.ForeignKey('projects.Project', on_delete=models.CASCADE)
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    status = models.IntegerField(default=1, choices=STATUS_CHOICES)
-
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.candidate.first_name + ': ' + self.project.company_name
-
-
-class InterestCheckAndSelfEvaluation(models.Model):
-    STATUS_CHOICES = (
-        (1, 'Interested, Self evaluation not done'),
-        (2, 'Interested, Self evaluation done'),
-        (3, 'Not interested'),
-    )
-    project = models.ForeignKey('projects.Project', on_delete=models.CASCADE)
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    status = models.IntegerField(choices=STATUS_CHOICES)
-
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.candidate.first_name + ': ' + self.project.company_name
-
-
-class Assignment(models.Model):
-    STATUS_CHOICES = (
-        (1, 'Assignment not submitted'),
-        (2, 'Assignment submitted'),
-        (3, 'Assignment not cleared'),
-        (4, 'Assignment cleared'),
-        (5, 'Assignment on hold'),
-        (6, 'No assignment'),
-    )
-    project = models.ForeignKey('projects.Project', on_delete=models.CASCADE)
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    status = models.IntegerField(default=1, choices=STATUS_CHOICES)
-    submitted_assignment = models.URLField(null=True)
-    submitted_date = models.DateTimeField(null=True, blank=True)
-    due_date = models.DateTimeField(null=True, blank=True)
-
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.candidate.first_name + ': ' + self.project.company_name
-
-
-class AssignmentFeedback(models.Model):
-    STATUS_CHOICES = (
-        (3, 'Assignment not cleared'),
-        (4, 'Assignment cleared'),
-        (5, 'Assignment on hold'),
-    )
-    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
-    recommendation = models.IntegerField(choices=STATUS_CHOICES, default=3)
-    comments = models.TextField(blank=True)
-    feedback_by = models.ForeignKey('admin_app.AdminUser', on_delete=models.CASCADE)
-
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.assignment.candidate.first_name + ': ' + self.assignment.project.company_name
 
 
 class Functional(models.Model):
@@ -378,6 +192,10 @@ class Functional(models.Model):
 
     def __str__(self):
         return self.candidate.first_name + ': ' + self.project.company_name
+    
+    class Meta:
+        app_label='candidate'
+        db_table = 'candidate_functional'
 
 
 class FunctionalFeedback(models.Model):
@@ -386,20 +204,25 @@ class FunctionalFeedback(models.Model):
         (3, 'Functional interview not cleared'),
         (4, 'Functional on hold'),
     )
-    functional = models.ForeignKey(Functional, on_delete=models.CASCADE)
-    skills_feedback = JSONBField(default=list)
+    functional = models.ForeignKey(Functional, on_delete=models.CASCADE, null=True)
+    skills_feedback = models.JSONField()
     overall_score = models.IntegerField(default=0)
     recommendation = models.IntegerField(choices=STATUS_CHOICES, default=3)
     comments = models.TextField(blank=True)
     interview_summary = models.URLField(null=True)
     feedback_by = models.ForeignKey('admin_app.AdminUser', on_delete=models.CASCADE)
-
+    feedback_by = models.ForeignKey('admin_app.AdminUser', on_delete=models.DO_NOTHING, null=True)
+    attachment = models.URLField(null=True)
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.functional.candidate.first_name + ': ' + self.functional.project.company_name
+    
+    class Meta:
+        app_label='candidate'
+        db_table = 'candidate_functionalfeedback'
 
 
 class Flexifit(models.Model):
@@ -422,6 +245,10 @@ class Flexifit(models.Model):
 
     def __str__(self):
         return self.candidate.first_name + ': ' + self.project.company_name
+    
+    class Meta:
+        app_label='candidate'
+        db_table = 'candidate_flexifit'
 
 
 class FlexifitFeedback(models.Model):
@@ -442,6 +269,10 @@ class FlexifitFeedback(models.Model):
 
     def __str__(self):
         return self.flexifit.candidate.first_name + ': ' + self.flexifit.project.company_name
+    
+    class Meta:
+        app_label='candidate'
+        db_table = 'candidate_flexifitfeedback'
 
 
 class FinalSelection(models.Model):
@@ -467,15 +298,10 @@ class FinalSelection(models.Model):
 
     def __str__(self):
         return self.candidate.first_name + ': ' + self.project.company_name
-
-
-@receiver(post_save, sender=FinalSelection)
-def update_flexibees_count(sender, instance, created, **kwargs):
-    if created:
-        instance.project.flexibees_selected += 1
-    if instance.status == 3:
-        instance.project.client_selected += 1
-    instance.project.save()
+    
+    class Meta:
+        app_label='candidate'
+        db_table = 'candidate_finalselection'
 
 
 class ClientFeedback(models.Model):
@@ -488,54 +314,13 @@ class ClientFeedback(models.Model):
     job_interview = models.ForeignKey('employer.Interview', on_delete=models.CASCADE, null=True)
     recommendation = models.IntegerField(choices=STATUS_CHOICES, default=4)
     comments = models.TextField(blank=True)
-    feedback_by = models.ForeignKey('admin_app.AdminUser', on_delete=models.CASCADE, null=True)
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, null=True)
     attachment = models.URLField(null=True)
 
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
-
-class SelfAssessment(models.Model):
-    project = models.ForeignKey('projects.Project', on_delete=models.CASCADE)
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    skills = JSONBField(default=list)
-    comments = models.TextField(blank=True)
-
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-
-class WebUser(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField()
-    country_code = models.CharField(max_length=5, default='91')
-    phone = models.CharField(max_length=15, validators=[mobile_regex])
-    converted = models.BooleanField(default=False)
-    converted_date = models.DateTimeField(null=True, blank=True)
-
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.first_name
-
-class EmailChange(models.Model):
-    email = models.EmailField()
-    previous_email = models.EmailField()
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    otp = models.TextField(blank=True)
-    verified = models.BooleanField(blank=True, null=True)
-
-    active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    def check_otp(self, raw_password):
-        def setter(raw_password):
-            self._otp = None
-            self.save(update_fields=["otp"])
-        return check_password(raw_password, self.otp, setter)
+    class Meta:
+        app_label='candidate'
+        db_table = 'candidate_clientfeedback'

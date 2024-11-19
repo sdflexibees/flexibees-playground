@@ -1,4 +1,4 @@
-"""flexibees_candidate URL Configuration
+"""flexibees_finance URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.1/topics/http/urls/
@@ -82,9 +82,9 @@ urlpatterns = [
     path('api/candidate/', include('apps.candidate.urls')),
     path('api/website/', include('apps.candidate.website_urls')),
     path('api/availability/', include('apps.availability.urls')),
-    # path('api/employer/', include('apps.employer.urls')),
+    path('api/employer/', include('apps.employer.urls')),
     # Proxy all employer-related URLs to the external server
-    re_path(r'^api/employer/.*$', proxy_function, name='employer-proxy'),
+    # re_path(r'^api/employer/.*$', proxy_function, name='employer-proxy'),
     path('api/common/', include('apps.common.urls')),
     path('api/finance/', include('apps.finance.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + \

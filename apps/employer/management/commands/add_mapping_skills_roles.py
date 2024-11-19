@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 import datetime
 from scripts.mapping_script_role_skill import mapping_conversion
 from apps.admin_app.views import api_logging
-from flexibees_candidate.settings.base import file_path
+from flexibees_finance.settings.base import file_path
 import os
 
 class Command(BaseCommand):

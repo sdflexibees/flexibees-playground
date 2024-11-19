@@ -12,7 +12,7 @@ from core.extra import send_validation_error
 from core.response_format import message_response
 from core.string_constants import ASSET_UPLOAD, CUSTOM_ROLE_APPROVAL, LINE_BREAK, DATE_FORMAT_STR, ROLE_LISTING_VIEWER, ROLE_SKILLS_LISTING, UPDATE_ROLE_NAME, UPDATE_SKILL_NAME
 from .constants import PENDING_STATUS, APPROVAL_STATUS, REJECTED_STATUS, ROLE_MAPPING_PRIORITY
-from flexibees_candidate.settings import ENV
+from flexibees_finance.settings import ENV
 from .response_messages import custum_approval_role_already_approved, status_message_failure, \
     status_message_success, custum_already_rejected, custum_approval_role_already_approved,\
     custum_role_already_approved, custum_role_rejected, custum_role_already_existing_mapping_table, custum_role_approved, \

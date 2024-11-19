@@ -1,16 +1,19 @@
+from io import BytesIO
 from django.views import View
 from drf_yasg.utils import swagger_auto_schema
 from django.shortcuts import get_object_or_404
 from apps.candidate.models import Candidate
 from apps.common.models import UserType, Users
+from apps.employer.models import Employer
 from apps.employer.permission_class import EmployerAuthentication
+from apps.finance.tasks import send_mail_contract
 from core.api_permissions import AdminAuthentication, AppUserAuthentication
 from core.response_format import message_response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from apps.finance.models import BankAccount, Consultant, ConsultantContract, SocialMedia
-from apps.finance.serializers import BankAccountListSerializer, BankAccountSerializer, ConsultantContractListSerializer, ConsultantContractSerializer, ConsultantListSerializer, ConsultantSerializer, SocialMediaListSerializer, SocialMediaSerializer
+from apps.finance.models import BankAccount, Client, Consultant, Contract, SocialMedia
+from apps.finance.serializers import BankAccountListSerializer, BankAccountSerializer, ClientSerializer, ContractListSerializer, ContractSerializer, ConsultantListSerializer, ConsultantSerializer, SocialMediaListSerializer, SocialMediaSerializer
 
 from django.template.loader import get_template, render_to_string
 from xhtml2pdf import pisa
@@ -18,7 +21,9 @@ from django.http import HttpResponse
 from rest_framework.permissions import BasePermission
 from rest_framework.permissions import IsAuthenticated
 from weasyprint import HTML
-
+from django.core.exceptions import ValidationError
+from rest_framework import status
+from django.utils.html import strip_tags
 
 
 class CandidateOrEmployerPermission(BasePermission):
@@ -282,13 +287,68 @@ class BankAccountAPI(ModelViewSet):
         bank_account.save()
         return Response(message_response("Bank account deactivated successfully"), status=200)
     
+
+class ClientAPI(ModelViewSet):
+    permission_classes = [EmployerAuthentication]
+    serializer_class = ClientSerializer
+
+    def get_queryset(self):
+        return Client.objects.all().order_by('-id')
+
+    @swagger_auto_schema(operation_description='List all active clients')
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = ClientSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(operation_description='Retrieve client details by ID')
+    def retrieve(self, request, pk=None):
+        client = get_object_or_404(Client, id=pk, active=True)
+        serializer = ClientSerializer(client)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(request_body=ClientSerializer, operation_description='Create a new client')
+    def create(self, request):
+        serializer = ClientSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            try:
+                user=request.user
+                employer = Employer.objects.get(user=user)
+                social_media = SocialMedia.objects.get(user=user)
+                # Save client with the associated employer
+                serializer.save(employer=employer,social_media=social_media)
+                return Response({"message": "Client created successfully"}, status=status.HTTP_201_CREATED)
+
+            except ValidationError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({"error": "An error occurred while creating the client: " + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    @swagger_auto_schema(request_body=ClientSerializer, operation_description='Update client details')
+    def update(self, request, pk=None):
+        client = get_object_or_404(Client, id=pk, active=True)
+        serializer = ClientSerializer(client, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    @swagger_auto_schema(operation_description='Deactivate client')
+    def destroy(self, request, pk=None):
+        client = get_object_or_404(Client, id=pk, active=True)
+        client.active = False
+        client.save()
+        return Response(message_response("Client deactivated successfully"), status=200)
+    
+
 class ConsultantAPI(ModelViewSet):
     # permission_classes = [AdminAuthentication]
     serializer_class = ConsultantSerializer
 
     def get_queryset(self):
-        return Consultant.objects.filter(active=True).order_by('-id')
+        return Consultant.objects.all().order_by('-id')
 
     @swagger_auto_schema(operation_description='List all active consultants')
     def list(self, request):
@@ -304,19 +364,58 @@ class ConsultantAPI(ModelViewSet):
 
     @swagger_auto_schema(request_body=ConsultantSerializer, operation_description='Create a new consultant')
     def create(self, request):
-        print("create consultant request")
         serializer = ConsultantSerializer(data=request.data, context={'request': request})
-        print("serializer ",serializer)
         if serializer.is_valid():
-            print("serializer is valid")
-            serializer.save()
-            return Response(message_response("Consultant created successfully"), status=201)
-        print("serializer is not valid")
-        print("errors ",serializer.errors)
-        return Response(serializer.errors, status=400)
+            try:
+                candidate = serializer.validated_data['candidate']
+                # Validate if candidate is active and status is '17'
+                if not candidate.active or candidate.status != '17':
+                    return Response({"error": "Candidate is either inactive or does not meet status requirements."}, status=status.HTTP_400_BAD_REQUEST)                
+                
+                existing_user = Users.objects.filter(email=candidate.email).first()
+                if existing_user:
+                    print("user already exists ",existing_user)
+                    user = existing_user                
+                else:
+                    # If candidate doesn't have an associated user, create one
+                    if candidate:
+                        print("user is a candidate")
+                        type, created = UserType.objects.get_or_create(type_name="Candidate")
+                        new_user = Users(
+                            email=candidate.email,
+                            first_name=candidate.first_name,
+                            last_name=candidate.last_name,
+                            type=type,
+                            user_type="2",
+                            profile_image=candidate.profile_pic,
+                            country_code=candidate.country_code,
+                            mobile=candidate.phone,
+                            otp=candidate.otp,
+                            address=candidate.address,
+                            phone_verified=candidate.phone_verified,
+                            email_verified=candidate.email_verified,
+                            is_active=candidate.active,
+                            created_at=candidate.created,
+                            updated_at=candidate.modified    
+                        )
+                        # Manually set password
+                        new_user.set_password(candidate.password)
+                        new_user.save()
+                        print("new user saved")
+                        user = new_user
+                # Save consultant with the associated user
+                serializer.save(user=user)
+                return Response({"message": "Consultant created successfully"}, status=status.HTTP_201_CREATED)
 
+            except ValidationError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({"error": "An error occurred while creating the consultant: " + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     @swagger_auto_schema(request_body=ConsultantSerializer, operation_description='Update consultant details')
-    def partial_update(self, request, pk=None):
+    def update(self, request, pk=None):
         consultant = get_object_or_404(Consultant, id=pk, active=True)
         serializer = ConsultantSerializer(consultant, data=request.data, partial=True)
         if serializer.is_valid():
@@ -332,37 +431,37 @@ class ConsultantAPI(ModelViewSet):
         return Response(message_response("Consultant deactivated successfully"), status=200)
 
 
-class ConsultantContractAPI(ModelViewSet):
+class ContractAPI(ModelViewSet):
     # permission_classes = [AdminAuthentication]
-    serializer_class = ConsultantContractSerializer
+    serializer_class = ContractSerializer
 
     def get_queryset(self):
-        return ConsultantContract.objects.filter(active=True).order_by('-id')
+        return Contract.objects.filter(active=True).order_by('-id')
 
     @swagger_auto_schema(operation_description='List all active consultant contracts')
     def list(self, request):
         queryset = self.get_queryset()
-        serializer = ConsultantContractListSerializer(queryset, many=True)
+        serializer = ContractListSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @swagger_auto_schema(operation_description='Retrieve consultant contract details by ID')
     def retrieve(self, request, pk=None):
-        contract = get_object_or_404(ConsultantContract, id=pk, active=True)
-        serializer = ConsultantContractSerializer(contract)
+        contract = get_object_or_404(Contract, id=pk, active=True)
+        serializer = ContractSerializer(contract)
         return Response(serializer.data)
 
-    @swagger_auto_schema(request_body=ConsultantContractSerializer, operation_description='Create a new consultant contract')
+    @swagger_auto_schema(request_body=ContractSerializer, operation_description='Create a new consultant contract')
     def create(self, request):
-        serializer = ConsultantContractSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
+        serializer = ContractSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():  
             serializer.save()
-            return Response({"message": "Consultant contract created successfully"}, status=201)
+            return Response({"message": "Contract created successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=400)
 
-    @swagger_auto_schema(request_body=ConsultantContractSerializer, operation_description='Update consultant contract details')
+    @swagger_auto_schema(request_body=ContractSerializer, operation_description='Update consultant contract details')
     def update(self, request, pk=None):
-        contract = get_object_or_404(ConsultantContract, id=pk, active=True)
-        serializer = ConsultantContractSerializer(contract, data=request.data, partial=True)
+        contract = get_object_or_404(Contract, id=pk, active=True)
+        serializer = ContractSerializer(contract, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -370,13 +469,13 @@ class ConsultantContractAPI(ModelViewSet):
 
     @swagger_auto_schema(operation_description='Deactivate consultant contract')
     def destroy(self, request, pk=None):
-        contract = get_object_or_404(ConsultantContract, id=pk, active=True)
+        contract = get_object_or_404(Contract, id=pk, active=True)
         contract.active = False
         contract.save()
-        return Response({"message": "Consultant contract deactivated successfully"}, status=200)
+        return Response({"message": "Contract deactivated successfully"}, status=200)
+
     
-    
-def render_to_pdf(template_src, context_dict):
+def render_to_pdf(template_src, context_dict, filename):
     template = get_template(template_src)
     html_content = template.render(context_dict)
     # response = HttpResponse(content_type='application/pdf')
@@ -389,37 +488,124 @@ def render_to_pdf(template_src, context_dict):
 
     # Serve the PDF as a downloadable file
     response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="contract.pdf"'
+    response['Content-Disposition'] = f'inline; filename="{filename}"'
     
     return response
 
 
-class GenerateContractPDF(View):
+class GenerateConsultantContractPDF(View):
     def get(self, request, pk=None):
         # Fetch the contract instance
-        contract = get_object_or_404(ConsultantContract, id=pk)
-
-        # Define the appropriate template based on contract type
-        if contract.contract_type == 'Internal Consultant':
-            template_name = 'contracts/FlexiBees_Agreement.html'
-        elif contract.contract_type == 'External Consultant':
-            template_name = 'contracts/external_contract2_1.html'
+        contract = get_object_or_404(Contract, id=pk)
+        
+        # Define the appropriate template and filename based on contract type
+        if contract.consultant_contract_type == '1':
+            template_name = 'contracts/consultant/external_consultant_contract+side_letter.html'
+            filename = f"{contract.consultant.candidate.first_name}_{contract.consultant.candidate.last_name}_FlexiBees_{contract.client.legal_entity_name}.pdf"
+        elif contract.consultant_contract_type == '2':
+            template_name = 'contracts/consultant/internal_bd_contract+side_letter+nda.html'
+            filename = f"{contract.consultant.candidate.first_name}_{contract.consultant.candidate.last_name}_FlexiBees_Agreement & NDA.pdf"
         else:
-            # Default template if no contract type is selected or unknown type
-            template_name = 'contracts/external_consultant.html'
-
+            template_name = 'contracts/consultant/internal_consultant_non_bdm.html'
+            filename = f"{contract.consultant.candidate.first_name}_{contract.consultant.candidate.last_name}_FlexiBees_Agreement & NDA.pdf"
+        
+        user = contract.consultant.user
+        print("consultant user ",user)
+        bank_account = BankAccount.objects.get(user=user)
         # Prepare the context for rendering the PDF
         context = {
-            'candidate_name': contract.consultant.candidate.first_name,
+            'candidate': contract.consultant.candidate,
+            'client':contract.client,
             'client_name': contract.job.employer.user.first_name,
-            'duration': contract.get_contract_duration,
-            'amount': contract.amount,
+            'consultant_amount': contract.consultant_amount,
             'candidate_address': contract.consultant.candidate.address,
             'candidate_email': contract.consultant.candidate.email,
-            'contract_date': contract.created_date,
-            'commence_date': contract.start_date,
-            'contract_end_date': contract.end_date
+            'contract_date': contract.created,
+            'bank_account':bank_account,
+            'job': contract.job,
+            'contract_date': contract.created,
+            'notice_period':contract.notice_period,
+            'bdm_gross_margin_commission_percentage':contract.bdm_gross_margin_commission_percentage,
+            'bdm_lifetime_commission_percentage':contract.bdm_lifetime_commission_percentage,
+            'contract':contract,
+            'director_name_display': contract.get_director_name_display(),
+            
         }
 
         # Render the selected template to PDF
-        return render_to_pdf(template_name, context)
+        return render_to_pdf(template_name, context, filename)
+    
+class GenerateClientContractPDF(View):
+    def get(self, request, pk=None):
+        # Fetch the contract instance
+        contract = get_object_or_404(Contract, id=pk)
+        # template_name = 'contracts/client/msw/msw.html'
+
+        # Define the appropriate template based on contract type
+        if contract.client_contract_type == '1':
+            template_name = 'contracts/client/International_Client Name_FlexiBees_Agreement_&_SOW_Role_Role Name_Consultant Name.html'
+        elif contract.client_contract_type == '2':
+            template_name = 'contracts/client/Domestic_Proprietorship_Client Name_FlexiBees_Master_Flexi_Staffing_Agreement.html'
+        elif contract.client_contract_type == '3':
+            template_name = 'contracts/client/Domestic_Non_Proprietorship_Client Name_FlexiBees_Master_Flexi_Staffing_Agreement.html'
+        elif contract.client_contract_type == '4':
+            template_name = 'contracts/client/Full_Time_Placement_Client Name_Master_Flexi_Staffing_Agreement_SOW.html'
+        elif contract.client_contract_type == '5':
+            template_name = 'contracts/client/Part_Time_Placement_Client Name_Master_Flexi_Staffing_Agreement_SOW.html'
+
+        # Define the filename for the client contract
+        filename = (f"{contract.client.legal_entity_name}_FlexiBees_Agreement & SOW_Role_"
+                    f"{contract.job.role}_{contract.consultant.candidate.first_name}_{contract.consultant.candidate.last_name}.pdf")
+
+        # Prepare the context for rendering the PDF
+        context = {
+            'director_name_display': contract.get_director_name_display(),
+            'contract': contract
+        }
+
+        # Render the selected template to PDF
+        return render_to_pdf(template_name, context, filename)
+    
+
+class EmailConsultantContractView(View):
+    def post(self, request, pk):
+        try:
+            # Fetch the contract instance
+            contract = get_object_or_404(Contract, pk=pk)
+            candidate_name = contract.candidate_name
+            month = contract.contract_date.strftime("%B %Y")
+
+            # Generate contract PDF using GenerateConsultantContractPDF
+            pdf_view = GenerateConsultantContractPDF.as_view()
+            pdf_response = pdf_view(request, pk=contract.id)
+            if not isinstance(pdf_response, HttpResponse) or pdf_response.status_code != 200:
+                return Response({"error": "Error generating PDF"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Get PDF content
+            contract_pdf_content = pdf_response.content
+            contract_pdf_bytes = BytesIO(contract_pdf_content)
+            candidate_name_with_underscores = candidate_name.replace(' ', '_')
+            contract_filename = f"contract_{candidate_name_with_underscores}_{month}.pdf"
+
+            # Prepare email content
+            subject = f'Contract for {candidate_name} - {month}'
+            html_message = render_to_string('contracts/contract_template.html', context={'contract': contract})
+            plain_message = strip_tags(html_message)
+            from_email = 'from@example.com'
+            to_email = contract.candidate_email
+
+            # Send email asynchronously with Celery
+            send_mail_contract.delay(
+                subject,
+                plain_message,
+                html_message,
+                from_email,
+                to_email,
+                contract_filename,
+                contract_pdf_bytes.getvalue()
+            )
+
+            return Response({"message": "Email sent successfully"}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

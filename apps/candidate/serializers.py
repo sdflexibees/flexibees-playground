@@ -973,3 +973,10 @@ class WebUserSendAppLinkSerializer(ModelSerializer):
     class Meta:
         model = WebUser
         fields = ('country_code', 'phone',)
+        
+        
+
+class CandidatesListSerializer(ModelSerializer):
+    class Meta:
+        model = Candidate
+        fields = '__all__'  

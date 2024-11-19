@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from sendgrid import SendGridAPIClient, FileContent, FileType, FileName, Disposition, ContentId
 from sendgrid.helpers.mail import Mail, Attachment, MimeType
 
-from flexibees_candidate.settings import SENDGRID_API_KEY, FROM_EMAIL
+from flexibees_finance.settings import SENDGRID_API_KEY, FROM_EMAIL
 
 
 def email_send(subject, template, recipient, context, file_name=None):

@@ -18,10 +18,10 @@ from core.fcm import send_candidate_notification
 from core.notification_contents import interest_check_reminder_1, interest_check_reminder_2,\
     candidate_reappear_notification, candidate_typical_day_notification_after_signup
 from core.zoho import get_crm_data
-from flexibees_candidate.settings import file_path, SENDGRID_API_KEY, FROM_EMAIL
+from flexibees_finance.settings import file_path, SENDGRID_API_KEY, FROM_EMAIL
 from apps.projects.from_crm import has_crm_project_in_db, check_change, check_length
 from apps.admin_app.views import api_logging
-from flexibees_candidate.settings import FIRST_STAGE_STATUS, AVAILABILITY_REAPPEAR_REMINDER_NOTIFICATION_COUNT
+from flexibees_finance.settings import FIRST_STAGE_STATUS, AVAILABILITY_REAPPEAR_REMINDER_NOTIFICATION_COUNT
 
 def interest_check_reminder():
     response_day_1 = now() - timedelta(days=1)

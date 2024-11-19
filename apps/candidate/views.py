@@ -16,7 +16,7 @@ from apps.candidate.all_candidate import check_candidate_profile
 from apps.candidate.mobility_views import CandidateActiveProjectsAPI
 from apps.candidate.models import Candidate, Assignment, Functional, FunctionalFeedback, InterestCheckAndSelfEvaluation, \
     AssignmentFeedback, Flexifit, FlexifitFeedback, FinalSelection, ClientFeedback, WebUser, Shortlist, SelfAssessment
-from apps.candidate.serializers import CandidateProfileDetailSerializer, WorkExperienceListSerializer, \
+from apps.candidate.serializers import AllCandidateListSerializer, CandidateProfileDetailSerializer, CandidatesListSerializer, WorkExperienceListSerializer, \
     EducationListSerializer, CertificationListSerializer, LanguageListSerializer, AttachmentListSerializer, \
     NextLevelSerializer, WebUserSerializer, WebUserListingSerializer, WorkExperienceListingSerializer, \
     CandidateDetailSerializer, CandidateSelfAssessmentSerializer, CandidateAssignmentFeedbackSerializer, \
@@ -147,3 +147,8 @@ class WebsiteSendLinkAPI(ModelViewSet):
         message = 'Dear candidate, Please click on the link given to download the FlexiBees Mobile App. Create your profile easily, and let us find you part time and remote roles matched with your skills and flexibility needs.. Play store link- '+ play_store_link + ' , App store link- ' + app_store_link
         send_sms(country_code, phone, message)
         return Response(message_response(app_links_sent))
+    
+    
+class AllCandidateViewSet(ModelViewSet):
+    queryset = Candidate.objects.all()
+    serializer_class = CandidatesListSerializer

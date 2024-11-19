@@ -677,7 +677,7 @@ class ProjectDetailSerializer(ModelSerializer):
     class Meta:
         model = Project
         fields = ('id', 'company_name', 'function_name', 'description', 'requirement_details', 'flexi_details',
-                  'project_details', 'role', 'other_details', 'form_type', )
+                    'project_details', 'role', 'other_details', 'form_type', )
 
 
 class ProjectListSerializer(ModelSerializer):
@@ -686,3 +686,11 @@ class ProjectListSerializer(ModelSerializer):
     class Meta:
         model = Project
         fields = ('id', 'company_name', 'role',)
+
+class ProjectsSerializer(ModelSerializer):
+    role = CharField(source='role.tag_name')
+    function = CharField(source='function.tag_name')
+
+    class Meta:
+        model = Project
+        fields = ('id', 'company_name', 'role','function','deal_name','bd_email','description')

@@ -13,7 +13,7 @@ Once the environment has been created, activate the environment:<br />`$ source 
 ------------
 ### 2. Clone project to the local machine
 In the terminal, navigate to the location where the project folder has to be created. Then enter the git command to clone the project:<br />`$ git clone https://github.com/appinessgit/flexibees-bed.git` <br />
-Once cloned, change the directory to **flexibees_candidate**<br /> `$ cd flexibees_candidate`
+Once cloned, change the directory to **flexibees_finance**<br /> `$ cd flexibees_finance`
 
 ------------
 ### 3. Install the project requirements

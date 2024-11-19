@@ -1,5 +1,5 @@
 """
-ASGI config for flexibees_candidate project.
+ASGI config for flexibees_finance project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "flexibees_candidate.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "flexibees_finance.settings")
 
 application = get_asgi_application()

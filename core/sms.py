@@ -1,6 +1,6 @@
 from twilio.rest import Client
 
-from flexibees_candidate.settings import TWILIO_SID, TWILIO_AUTH
+from flexibees_finance.settings import TWILIO_SID, TWILIO_AUTH
 
 client = Client(TWILIO_SID, TWILIO_AUTH)
 
