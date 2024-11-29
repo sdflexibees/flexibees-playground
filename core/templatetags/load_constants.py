@@ -1,5 +1,5 @@
 from django import template
-from flexibees_candidate.settings import base
+from flexibees_finance.settings import base
 
 register = template.Library()
 

@@ -3,7 +3,7 @@ from core.fcm import send_candidate_notification
 from core.notification_contents import candidate_recruitment_typical_day_notification
 from core.helper_functions import min_hours_filled_in_my_typical_day
 from datetime import datetime
-from flexibees_candidate.settings import MAX_NO_OF_MY_TYPICAL_DAY_NOTIFICATIONS, HOURS_A_DAY
+from flexibees_finance.settings import MAX_NO_OF_MY_TYPICAL_DAY_NOTIFICATIONS, HOURS_A_DAY
 from apps.admin_app.views import api_logging
 from django.utils import timezone
 

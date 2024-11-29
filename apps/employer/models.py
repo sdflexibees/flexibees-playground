@@ -1,7 +1,8 @@
 from django.db import models
-from apps.admin_app.models import Domain
-from apps.common.models import CustomRole, CustomSkill, Users
-from core.model_choices import (CUSTUM_ROLES_SKILLS_STATUS,EMPLOYER_COMPANY_SIZE, EMPLOYER_SOURCE,EMPLOYER_STATUS, EMPLOYER_JOB_STATUS, EMPLOYER_TARGET_AUDIENCE, INTERVIEW_STATUS, JOB_DRAFT_STATUS, USER_TYPE_CHOICES, CANDIDATE_JOB_STATUS, FEEDBACK_STATUS)
+from apps.admin_app.models import Domain, Country
+from apps.common.models import CustomRole, CustomSkill, Users, CandidateInterviewSlot
+from core.model_choices import (CUSTUM_ROLES_SKILLS_STATUS,EMPLOYER_COMPANY_SIZE, EMPLOYER_SOURCE,EMPLOYER_STATUS, 
+    EMPLOYER_JOB_STATUS, EMPLOYER_TARGET_AUDIENCE, INTERVIEW_STATUS, JOB_DRAFT_STATUS, USER_TYPE_CHOICES, CANDIDATE_JOB_STATUS, FEEDBACK_STATUS, EMPLOYER_OPERATED_GLOBALLY, EMPLOYER_JOB_PRICING_CURRENCY)
 # Create your models here.
 from apps.candidate.models import Candidate
 
@@ -14,7 +15,11 @@ class Company(models.Model):
     size =  models.CharField(max_length=5, choices=EMPLOYER_COMPANY_SIZE)
     target_audience = models.CharField(max_length=5, choices=EMPLOYER_TARGET_AUDIENCE)
     source = models.CharField(max_length=5, choices=EMPLOYER_SOURCE)
-
+    country = models.ForeignKey(Country, on_delete= models.DO_NOTHING, null= True)
+    address = models.CharField(max_length= 200, blank= True)
+    operations_in = models.CharField(max_length=3, choices= EMPLOYER_OPERATED_GLOBALLY, default= EMPLOYER_OPERATED_GLOBALLY[0][0])
+    longitude = models.FloatField(null=True) 
+    latitude = models.FloatField(null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -24,6 +29,7 @@ class Company(models.Model):
 
     class Meta:
         db_table = 'companies'
+        app_label = 'employer'
 
 
 class Employer(models.Model):
@@ -41,6 +47,7 @@ class Employer(models.Model):
     
     class Meta:
         db_table = 'employers'
+        app_label = 'employer'
 
 
 class Job(models.Model):
@@ -55,12 +62,15 @@ class Job(models.Model):
     other_details = models.JSONField(default={})
     attachment = models.URLField(blank=True)
     details = models.JSONField(default={})
+    pricing = models.FloatField(null=True, blank=True)
+    pricing_currency = models.CharField(max_length=2,choices= EMPLOYER_JOB_PRICING_CURRENCY ,default=EMPLOYER_JOB_PRICING_CURRENCY[0][0])
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'jobs'
+        app_label = 'employer'
 
 
 class JobCustomRoleSkills(models.Model):
@@ -78,6 +88,7 @@ class JobCustomRoleSkills(models.Model):
     
     class Meta:
         db_table = 'job_custom_role_skills'
+        app_label = 'employer'
 
 
 class DraftJob(models.Model):
@@ -91,6 +102,7 @@ class DraftJob(models.Model):
 
     class Meta:
         db_table = 'draft_jobs'
+        app_label = 'employer'
 
     
 class RolesMinMaxPricing(models.Model):
@@ -104,18 +116,20 @@ class RolesMinMaxPricing(models.Model):
 
     class Meta:
         db_table = 'roles_min_max_pricing'
+        app_label = 'employer'
 
 
 class CandidateJobStatus(models.Model):
-
     job = models.ForeignKey(Job, on_delete=models.DO_NOTHING)
     candidate = models.ForeignKey(Candidate, on_delete=models.DO_NOTHING)
     status = models.PositiveSmallIntegerField(choices=CANDIDATE_JOB_STATUS)
+    self_evalution = models.JSONField(default={})
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'candidate_job_status'
+        app_label = 'employer'
 
 class CandidateJobNotes(models.Model):
     comments = models.TextField()
@@ -126,6 +140,7 @@ class CandidateJobNotes(models.Model):
 
     class Meta:
         db_table = 'candidate_job_status_notes'
+        app_label = 'employer'
 
 class SkippedCandidate(models.Model):
     job = models.ForeignKey(Job, on_delete=models.DO_NOTHING)
@@ -134,6 +149,7 @@ class SkippedCandidate(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     class Meta:
         db_table = 'job_skipped_candidates'
+        app_label = 'employer'
 
 class InterviewSlot(models.Model):
     start_date_time = models.DateTimeField()
@@ -145,6 +161,7 @@ class InterviewSlot(models.Model):
 
     class Meta:
         db_table = 'interview_slots'
+        app_label = 'employer'
 
 class Interview(models.Model):
     candidate_job_status = models.ForeignKey(CandidateJobStatus, on_delete=models.CASCADE)
@@ -156,3 +173,30 @@ class Interview(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     class Meta:
         db_table = 'interviews'
+        app_label = 'employer'
+
+class EmployerSession(models.Model):
+    employer = models.ForeignKey(Employer, on_delete=models.CASCADE)
+    password = models.CharField(max_length=255, unique=True)
+    expiry = models.DateTimeField()
+
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'employer_sessions'
+        app_label = 'employer'
+    
+
+class InterviewScheduled(models.Model):
+    candidate_slots = models.ForeignKey(CandidateInterviewSlot, on_delete=models.DO_NOTHING, null=False)
+    interview = models.ForeignKey(Interview, on_delete=models.DO_NOTHING, null=False)
+    starting_time = models.DateTimeField(null=False)
+    ending_time = models.DateTimeField(null=False)
+    meet_url = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = models.DateTimeField(auto_now=True, null=False)
+
+    class Meta:
+        db_table = 'job_interview_scheduleds'
+        app_label = 'employer'

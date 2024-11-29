@@ -1,7 +1,7 @@
 import uuid
 from apps.common.constants import EMPLOYER
 import boto3
-from flexibees_candidate.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME, AWS_S3_CUSTOM_DOMAIN, ENV
+from flexibees_finance.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME, AWS_S3_CUSTOM_DOMAIN, ENV
 from core.constants import HTTPS
 
 # bucket session

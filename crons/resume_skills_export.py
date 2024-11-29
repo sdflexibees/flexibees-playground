@@ -1,6 +1,6 @@
 import base64
 from sendgrid.helpers.mail import Mail, Attachment
-from flexibees_candidate.settings import file_path, SENDGRID_API_KEY, FROM_EMAIL
+from flexibees_finance.settings import file_path, SENDGRID_API_KEY, FROM_EMAIL
 from django.template.loader import render_to_string
 from apps.candidate.models import Candidate, ClientFeedback, FinalSelection, Flexifit,CandidateAttachment
 from sendgrid import SendGridAPIClient, FileContent, FileType, FileName, Disposition

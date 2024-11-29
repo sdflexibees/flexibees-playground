@@ -54,7 +54,7 @@ class Project(models.Model):
     form_type = models.CharField(max_length=10, choices=FORM_TYPE_CHOICES, default='general')
     status = models.IntegerField(default=1, choices=STATUS_CHOICES)
     recruiter = models.ForeignKey('admin_app.AdminUser', null=True, blank=True, on_delete=models.CASCADE,
-                                  related_name='recruiter')
+                                    related_name='recruiter')
     flexibees_selected = models.PositiveIntegerField(default=0)
     client_selected = models.PositiveIntegerField(default=0)
     request_date = models.DateTimeField(null=True, blank=True)
@@ -65,7 +65,7 @@ class Project(models.Model):
     send_to_bdmanager=models.DateTimeField(null=True,blank=True)
     date_sent_to_recruitment = models.DateTimeField(null=True,blank=True)
     previous_recruiter = models.ForeignKey('admin_app.AdminUser', null=True, blank=True, on_delete=models.CASCADE,
-                                           related_name='previous_recruiter')
+                                            related_name='previous_recruiter')
     notify_status = models.IntegerField(default=1, choices=NOTIFY_STATUS_CHOICES)
     recruitment_days = models.PositiveIntegerField(default=0)
     date_assigned_to_recruiter = models.DateTimeField(null=True,blank=True)

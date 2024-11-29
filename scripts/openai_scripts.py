@@ -1,5 +1,5 @@
 import requests
-from flexibees_candidate.settings import (AMAZON_AWS_ACCESS_ID_KEY, AMAZON_AWS_SECRET_ACCESS_KEY, AMAZON_AWS_REGION, AMAZON_AWS_MODEL_ID, AMAZON_SERVICE_NAME)
+from flexibees_finance.settings import (AMAZON_AWS_ACCESS_ID_KEY, AMAZON_AWS_SECRET_ACCESS_KEY, AMAZON_AWS_REGION, AMAZON_AWS_MODEL_ID, AMAZON_SERVICE_NAME)
 from apps.admin_app.views import api_logging
 from datetime import datetime
 from apps.employer.constants import ( YEARS, DURATION, CURRENCY_FORMAT)

@@ -2,18 +2,18 @@ from functools import wraps
 from apps.projects.models import Pricing
 from core.constants import REQUEST_INDEX
 from core.extra import send_validation_error
-from flexibees_candidate.settings import MIN_HOURS_FOR_MY_TYPICAL_DAY
+from flexibees_finance.settings import MIN_HOURS_FOR_MY_TYPICAL_DAY
 from datetime import datetime
 from apps.availability.models import CandidateAvailability
 from apps.candidate.models import Candidate
 from rest_framework import exceptions
 from django.core.exceptions import ObjectDoesNotExist
 from core.response_format import message_response
-from flexibees_candidate.settings import APP_VERSION
+from flexibees_finance.settings import APP_VERSION
 from core.response_messages import update_app, closed_project, suspended_project, something_went_wrong,\
 email_user_exists, link_expired, email_already_verified
 import logging
-from flexibees_candidate.settings import CLOSED_PROJECT_STATUS, SUSPENDED_PROJECT_STATUS, HOURS_A_DAY
+from flexibees_finance.settings import CLOSED_PROJECT_STATUS, SUSPENDED_PROJECT_STATUS, HOURS_A_DAY
 import string
 from random import choice
 from django.utils import timezone
@@ -133,3 +133,94 @@ def api_exception_handler(api_name, is_staticmethod=True):
                     return Response({"error": "Request object not found"}, status=400)
         return wrapper
     return decorator
+
+
+def get_filters(filters, role=None):
+    try:
+        filter_query = {}
+        if filters:
+            filter_query.update({'roles__in': filters.get('roles')}) if len(filters.get('roles', [])) != 0 \
+                else filter_query
+            filter_query.update({'skills__in': filters.get('skills')}) if len(filters.get('skills', [])) != 0 \
+                else filter_query
+            filter_query.update({'active_projects__in': filters.get('active_projects')}) if len(filters.get(
+                'active_projects', [])) != 0 else filter_query
+            filter_query.update({'total_available_hours__in': filters.get('total_available_hours')}) if len(
+                filters.get('total_available_hours', [])) != 0 else filter_query
+            filter_query.update({'flexibees_selected__in': filters.get('flexibees_selected')}) if len(
+                filters.get('flexibees_selected', [])) != 0 else filter_query
+            if filters.get('years_of_experience'):
+                years_of_experience = filters.get('years_of_experience')
+                if years_of_experience.get('min') and years_of_experience.get('min') != "":
+                    filter_query.update({'total_year_of_experience__gte': years_of_experience.get('min')})
+                if years_of_experience.get('max') and years_of_experience.get('max') != "":
+                    filter_query.update({'total_year_of_experience__lte': years_of_experience.get('max')})
+            if role:
+                if filters.get('relevant_experience'):
+                    relevant_experience = filters.get('relevant_experience')
+                    if relevant_experience.get('min') and relevant_experience.get('min') != "":
+                        filter_query.update({'relevantexp__r' + role + '__gte': relevant_experience.get('min')})
+                    if relevant_experience.get('max') and relevant_experience.get('max') != "":
+                        filter_query.update({'relevantexp__r' + role + '__lte': relevant_experience.get('max')})
+            else:
+                filter_query.update({'city__in': filters.get('cities')}) if len(filters.get('cities', [])) != 0 \
+                else filter_query
+                filter_query.update({'years_of_break__in': filters.get('years_of_break')}) if len(
+                    filters.get('years_of_break', [])) != 0 else filter_query
+        return filter_query
+    except Exception as e:
+        log_data = [f"info|| {datetime.now()}: Exception occured in filters"]
+        log_data.append(f"error|| {e}")
+        api_logging(log_data)
+        return False
+
+    
+def get_search_conditions(search_fields, search_term):
+    end = len(search_fields)-1
+    search_conditions = ''
+    for pos, field in enumerate(search_fields):
+        if field=='skills_resume':
+            search_conditions += f"""
+            EXISTS (
+            SELECT 1
+            FROM unnest(skills_resume) AS skill
+            WHERE lower(skill) LIKE lower('%{search_term}%')
+            )"""
+        elif field=='skill':
+            search_conditions += f"""EXISTS (
+            SELECT 1
+            FROM candidate_candidate_skills
+            INNER JOIN admin_app_skill ON candidate_candidate_skills.skill_id = admin_app_skill.id
+            WHERE candidate_candidate.id = candidate_candidate_skills.candidate_id
+            AND lower(admin_app_skill.tag_name) LIKE lower('%{search_term}%')
+            )"""
+        elif field=='role':
+            search_conditions += f"""EXISTS (
+            SELECT 1
+            FROM candidate_candidate_roles
+            INNER JOIN admin_app_role ON candidate_candidate_roles.role_id = admin_app_role.id
+            WHERE candidate_candidate.id = candidate_candidate_roles.candidate_id
+            AND lower(admin_app_role.tag_name) LIKE lower('%{search_term}%')
+            )"""
+        elif field=='employment_detail':
+            search_conditions += f"""EXISTS (
+            SELECT 1
+            FROM candidate_employmentdetail
+            WHERE candidate_candidate.id = candidate_employmentdetail.candidate_id
+            AND (
+            lower(candidate_employmentdetail.company) LIKE lower('%{search_term}%') OR EXISTS
+            (
+            SELECT 1
+            FROM admin_app_role
+            WHERE id = candidate_employmentdetail.role_id
+            AND (
+            lower(tag_name) LIKE lower('%{search_term}%')
+            )
+            )
+            )
+            )"""
+        elif field in ['first_name', 'last_name', 'legacy_skills', 'legacy_last_role', 'legacy_prior_roles', 'legacy_last_employer', 'legacy_prior_employers', 'city', 'phone', 'email']:
+            search_conditions += f"lower({field}) LIKE lower('%{search_term}%')"
+        if end != pos:
+            search_conditions += ' OR '
+    return search_conditions

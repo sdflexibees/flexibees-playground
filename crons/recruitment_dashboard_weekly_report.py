@@ -6,7 +6,7 @@ import pytz
 from sendgrid.helpers.mail import Mail, Attachment
 
 from apps.admin_app.models import Skill
-from flexibees_candidate.settings import file_path, SENDGRID_API_KEY, FROM_EMAIL
+from flexibees_finance.settings import file_path, SENDGRID_API_KEY, FROM_EMAIL
 from django.template.loader import render_to_string
 from apps.candidate.models import Candidate, ClientFeedback, FinalSelection, Flexifit
 from apps.projects.models import Project, Pricing
@@ -14,7 +14,7 @@ from django.utils.timezone import now, timedelta
 from sendgrid import SendGridAPIClient, FileContent, FileType, FileName, Disposition
 import pandas as pd
 import numpy as np
-from flexibees_candidate.settings import TO_EMAIL
+from flexibees_finance.settings import TO_EMAIL
 
 
 def get_date_time(dt, return_date=False):

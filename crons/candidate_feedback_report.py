@@ -2,7 +2,7 @@ import logging
 import base64
 import os
 from sendgrid.helpers.mail import Mail, Attachment
-from flexibees_candidate.settings import file_path, SENDGRID_API_KEY, FROM_EMAIL
+from flexibees_finance.settings import file_path, SENDGRID_API_KEY, FROM_EMAIL
 from django.template.loader import render_to_string
 from apps.candidate.models import Candidate, ClientFeedback, FinalSelection, \
     Assignment, AssignmentFeedback, Functional, FunctionalFeedback, FlexifitFeedback, Flexifit
@@ -11,7 +11,7 @@ from sendgrid import SendGridAPIClient, FileContent, FileType, FileName, Disposi
 import pandas as pd
 import numpy as np
 from itertools import chain
-from flexibees_candidate.settings import TO_EMAIL, RECEIVER_NAME
+from flexibees_finance.settings import TO_EMAIL, RECEIVER_NAME
 
 
 # defining a function for getting skill wise score for candidates

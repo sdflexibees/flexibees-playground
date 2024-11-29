@@ -5,7 +5,7 @@ import time
 import pytz
 from sendgrid.helpers.mail import Mail, Attachment
 from django.core.paginator import Paginator
-from flexibees_candidate.settings import SENDGRID_API_KEY, FROM_EMAIL
+from flexibees_finance.settings import SENDGRID_API_KEY, FROM_EMAIL
 from django.template.loader import render_to_string
 from apps.candidate.models import ClientFeedback
 from apps.projects.models import Project, Pricing

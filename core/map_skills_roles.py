@@ -5,7 +5,7 @@ import re
 from apps.admin_app.models import Skill, Role
 from apps.candidate.models import Candidate
 
-with open('/Users/appiness/Projects/flexibees_candidate/core/Go_live_legacy.csv') as csv_file:
+with open('/Users/appiness/Projects/flexibees_finance/core/Go_live_legacy.csv') as csv_file:
     print('FIle opened')
     csv_reader = csv.reader(csv_file)
     line_count = 0

@@ -4,7 +4,7 @@ from apps.candidate.models import Candidate
 from .encryption import (jwt_decode_handler, crypto_decode)
 from rest_framework.exceptions import APIException
 from core.response_format import message_response
-from flexibees_candidate.settings import APP_VERSION
+from flexibees_finance.settings import APP_VERSION
 from core.response_messages import update_app
 
 # from user_app.models import AppUser

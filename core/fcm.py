@@ -2,8 +2,8 @@ import requests
 from datetime import datetime
 from core.string_constants import LINE_BREAK
 from apps.notifications.models import UserDevice, CandidateNotification
-from flexibees_candidate.settings import FCM_PROJECT_ID
-from flexibees_candidate.settings.base import FCM_CREDENTIALS_PATH, FCM_NOTIFICATION_URL, FCM_SCOPES
+from flexibees_finance.settings import FCM_PROJECT_ID
+from flexibees_finance.settings.base import FCM_CREDENTIALS_PATH, FCM_NOTIFICATION_URL, FCM_SCOPES
 from google.oauth2.service_account import Credentials
 import google.auth.transport.requests
 

@@ -21,7 +21,7 @@ from apps.candidate.models import Candidate, EmploymentDetail, Education, Certif
 
 from rest_framework import exceptions
 from core.model_choices import DEVICE_TYPES
-from flexibees_candidate.settings import APPTEST_USERID
+from flexibees_finance.settings import APPTEST_USERID
 
 from apps.candidate.serializers import CandidateSerializer, CandidateDetailsSerializer, CandidateProfileSerializer, \
     CandidateWorkExperienceSerializer, CandidateEducationSerializer, CandidateCertificationSerializer, \
@@ -51,7 +51,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from core.sms import send_sms
 from core.validations import check_invalid
-from flexibees_candidate.settings import SUPER_ADMIN_ROLE, SUPER_ADMIN_EMAIL, ITEM_TYPE_CANDIDATE, SENT_TO_TYPE_SUPER_ADMIN, SENT_TO_TYPE_RECRUITER, SENT_TO_TYPE_RECRUITER_ADMIN
+from flexibees_finance.settings import SUPER_ADMIN_ROLE, SUPER_ADMIN_EMAIL, ITEM_TYPE_CANDIDATE, SENT_TO_TYPE_SUPER_ADMIN, SENT_TO_TYPE_RECRUITER, SENT_TO_TYPE_RECRUITER_ADMIN
 from scripts.on_demand_task import get_mylife_status
 from core.helper_functions import min_hours_filled_in_my_typical_day, check_version, check_email, generate_otp
 from apps.notifications.models import UserDevice 
@@ -214,6 +214,7 @@ class CandidateAccountsAPI(ModelViewSet):
             check_invalid([phone_number, country_code])
             check_phone_number(phone_number)
         otp = generate_otp()
+        print("otp ",otp)
         request.data['otp'] = make_password(otp)
         serializer = CandidateSerializer(data=request.data, partial=True)
         if serializer.is_valid():
@@ -333,6 +334,7 @@ class CandidateAccountsAPI(ModelViewSet):
             check_invalid([country_code, phone])
             user_obj = get_object_or_404(Candidate, id=user_id, phone__iexact=phone, country_code__iexact=country_code)
         otp = generate_otp()
+        print("otp ",otp)
         if user_obj:
             if 'email' in request.data:
                 subject = 'Email Verification'

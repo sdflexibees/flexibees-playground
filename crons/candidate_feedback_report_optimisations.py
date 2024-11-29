@@ -3,7 +3,7 @@ import base64
 import os
 import time
 from sendgrid.helpers.mail import Mail, Attachment
-from flexibees_candidate.settings import SENDGRID_API_KEY, FROM_EMAIL
+from flexibees_finance.settings import SENDGRID_API_KEY, FROM_EMAIL
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from apps.candidate.models import ClientFeedback, Functional, \

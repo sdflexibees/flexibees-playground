@@ -30,10 +30,10 @@ from core.response_messages import activity_card_exists, updated, object_does_no
 
 # Create your views here.
 from core.validations import check_invalid
-from flexibees_candidate.settings import CHARACTER_LIMIT_60, CHARACTER_LIMIT_120
+from flexibees_finance.settings import CHARACTER_LIMIT_60, CHARACTER_LIMIT_120
 from apps.candidate.models import Functional
 from apps.notifications.views import notify_admin
-from flexibees_candidate.settings import ITEM_TYPE_CANDIDATE, SENT_TO_TYPE_RECRUITER, SUPER_ADMIN_ROLE, SUPER_ADMIN_EMAIL
+from flexibees_finance.settings import ITEM_TYPE_CANDIDATE, SENT_TO_TYPE_RECRUITER, SUPER_ADMIN_ROLE, SUPER_ADMIN_EMAIL
 from apps.admin_app.models import AdminUser
 from core.helper_functions import min_hours_filled_in_my_typical_day
 from apps.admin_app.views import api_logging
