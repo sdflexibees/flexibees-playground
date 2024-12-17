@@ -26,9 +26,12 @@ class Command(BaseCommand):
                             for city in country['cities']
                         ]
                         City.objects.bulk_create(city_objs)
-            return True
+            # return True
+            self.stdout.write(self.style.SUCCESS('Cities and countries successfully added.'))
         except Exception as e:
             log_data = [f"info|| {datetime.datetime.now()}: add cities function"]
             log_data.append(f"info|| {e}")
             api_logging(log_data)
-            return False
+            # return False
+            self.stderr.write(self.style.ERROR(f"An error occurred: {e}"))
+        

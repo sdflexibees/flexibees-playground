@@ -1,5 +1,6 @@
 from datetime import date
 import os
+from django.utils.timezone import now
 from django.db import models
 from django.core.validators import MaxValueValidator
 from django.utils.translation import gettext_lazy as _
@@ -104,6 +105,37 @@ DIRECTOR_NAME_CHOICES = (
     ('3',"Deepa Narayanaswamy")
 )
 
+WORK_DESCRIPTION_TYPES = (
+    ('1',"For the Period"),
+    ('2',"For the Project Milestone")
+)
+
+TERMS_OF_PAYMENT = (
+    ('1',"Within 3 days"),
+    ('2',"Within 5 days"),
+    ('3',"Within 7 days"),
+    ('4',"Within 10 days"),
+    ('5',"Within 15 days"),
+    ('6',"Within 30 days")    
+)
+
+CONSULTANT_INVOICE_STATUS = (    
+    ('1','payment pending'),
+    ('2','Discrepancy'),
+    ('3','payment done')
+)
+
+CLIENT_INVOICE_STATUS = (
+    ('1','Pending Approval'),
+    ('2','Approved'),
+    ('3','Pending collection '),
+    ('4','Collection received')
+)
+
+SERVICE_CHOICES = (
+    ('1','Manpower Supply Services'),
+    ('2','Management Consultancy')
+)
 
 def validate_file_or_image(file):
     valid_extensions = ['.jpg', '.jpeg', '.png', '.pdf']
@@ -163,26 +195,21 @@ class BankAccount(models.Model):
     
 class Client(models.Model):
     employer = models.ForeignKey("employer.Employer", on_delete=models.CASCADE)
-    social_media = models.ForeignKey("finance.SocialMedia", on_delete=models.CASCADE)
     legal_entity_name = models.CharField(_("Legal Entity Name"),max_length=255)
     brand_name = models.CharField(_("Brand Name (If any)"),max_length=255, blank=True, null=True)
     date_of_incorporation = models.DateField(_("Date of Incorporation"),blank=True, null=True)
-    # address = models.TextField(_("Address"))
     city = models.CharField(_("City"),max_length=255)
     state = models.CharField(_("State"),max_length=255)
     zip_code = models.CharField(_("Zip Code"),max_length=10)
-    # country = models.CharField(_("h. Country"),max_length=100)
     registered_under_gst_act = models.BooleanField(_("Whether Registered under GST Act 2017?"),default=False)
     type_of_registration = models.CharField(_("Type of Registration"),choices=REGISTRATION_TYPES,max_length=255,default='1')
-    gstin = models.CharField(_("GSTIN"),max_length=50, blank=True, null=True)
+    gstin_uin = models.CharField(_("GSTIN/UIN"),max_length=50, blank=True, null=True)
     gst_certificate = models.FileField(upload_to='gst_certificates/', blank=True, null=True, validators=[validate_file_or_image])
     registered_under_msmed = models.BooleanField(_("Whether Registered under MSMED?"),default=False)
     msme_registration_number = models.CharField(_("MSME Registration Number"),max_length=50, blank=True, null=True)
     company_sector = models.CharField(_("Company Sector"),choices=COMPANY_SECTORS,max_length=255,default='1')
     company_setup = models.CharField(_("Company Setup"),choices=COMPANY_SETUPS,max_length=255,default='1')
     company_head_count = models.PositiveIntegerField(_("Company Head Count"))
-    # website = models.URLField(_("Website/other source"),blank=True, null=True)
-    # billing_currency = models.CharField(_("Billing Currency"),max_length=10)
     authorized_person_name = models.CharField(_("Name of authorized person for signing the contract"),max_length=255)
     authorized_person_designation = models.CharField(_("Designation of the authorized person"),max_length=255)
     authorized_person_email = models.EmailField(_("Mail id of the authorized person"))
@@ -190,9 +217,11 @@ class Client(models.Model):
     accounts_contact_person_email = models.EmailField(_("Email Id of Accounts/Finance Person"))
     accounts_contact_person_phone = models.CharField(_("Phone no of Accounts/Finance Person"),max_length=20)
     send_hard_copy_invoice = models.BooleanField(_("Whether hard copy invoice to be sent for billing (by default we send soft copy only, but hard copy can be sent on request)"),default=False)
-    # email = models.EmailField(_("Email"))
     pan_card = models.FileField(upload_to='bank_documents/', blank=True, null=True, validators=[validate_file_or_image])
     pan_card_number = models.CharField(_("PAN Card Number"), max_length=125)
+    vat_tin_number = models.CharField(_("VAT/TIN Number"), max_length=125, null=True, blank=True)   # for invoice
+    cin = models.CharField(_("CIN"),max_length=255, null=True, blank=True)# for invoice
+    state_code = models.CharField(_("State Code"),max_length=125)# for invoice statecode
     
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -204,13 +233,11 @@ class Client(models.Model):
         verbose_name_plural = 'clients'
 
     def __str__(self):
-        return f"{self.legal_entity_name} ({self.brand_name if self.brand_name else 'No Brand'})"
-    
+        return f"{self.legal_entity_name} ({self.brand_name if self.brand_name else 'No Brand'})"    
     
 
 class Consultant(models.Model):
-    user = models.ForeignKey(Users, on_delete=models.DO_NOTHING, null=True)  # @TODO fix later - candidate model refactoring
-    candidate = models.ForeignKey("candidate.Candidate", on_delete=models.CASCADE, limit_choices_to={'status__in': ['17', '18', '19', '20', '21', '22', '23', '24', '25']}, related_name='consultant')  
+    candidate = models.ForeignKey("candidate.Candidate", on_delete=models.CASCADE, limit_choices_to={'status__in': ['17', '18', '19', '20', '21', '22', '23', '24', '25']}, related_name='consultant_profile')  
     alt_contact_person_name = models.CharField(_("Alternative Contact Person's Name"), max_length=255, blank=True, null=True)
     alt_contact_person_number = models.CharField(_("Alternative Contact Person's Phone"), max_length=125, blank=True, null=True)
     alt_contact_person_relation = models.CharField(_("Relation with Alternative Contact Person"), max_length=255, blank=True, null=True) 
@@ -225,7 +252,12 @@ class Consultant(models.Model):
         verbose_name_plural = _('consultants')
         
     def __str__(self):
-        return f"Consultant {self.id} {self.candidate.first_name} {self.candidate.last_name}"
+        return f"Consultant {self.id} {self.candidate.first_name} {self.candidate.last_name}"   
+
+    @property
+    def consultant_name(self):
+        """Return the consultant's full name."""
+        return f"{self.candidate.first_name} {self.candidate.last_name}"
 
 
 class Contract(models.Model):
@@ -239,19 +271,14 @@ class Contract(models.Model):
     client_contract_type = models.CharField(_('Client Contract Type'),choices=CLIENT_CONTRACT_TYPES,max_length=255,default='1')
     notice_period = models.IntegerField(_("Notice Period (in days)"))
     signed_date = models.DateField(null=True, blank=True)
-    # start_date = models.DateField(_("Start Date"))
-    # end_date = models.DateField(_("End Date"))
     consultant_amount = models.IntegerField(_("Consultant Amount"))
     consultant_aggregate_amount = models.IntegerField(_("Consultant Aggregate Amount"))
     client_amount = models.IntegerField(_("Client Amount"))
-    # food_allowance = models.IntegerField(_("Food Allowance"), default=0)
-    # travel_allowance = models.IntegerField(_("Travel Allowance"), default=0)
-    # phone_allowance = models.IntegerField(_("Phone Allowance"), default=0)
-    # other_allowance = models.IntegerField(_("Other Allowance"), default=0)
     status = models.CharField(_('Status'),choices=CONTRACT_STATUS,max_length=125, default=1)
     pdf_link = models.URLField(_("Link to Signed PDF"), blank=True, null=True)
     digi_sign_link = models.URLField(_("Digital Signature Link"), blank=True, null=True) 
     signatory_image = models.ImageField(_("Signature"),upload_to='signatures/images/', null=True, blank=True)
+    signatory_designation = models.CharField(_('Signatory Designation'),max_length=255)
     bdm_gross_margin_commission_percentage = models.IntegerField("BDM Gross Margin Percentage", null=True, blank=True)
     bdm_lifetime_commission_percentage = models.IntegerField("BDM Life Time Percentage", null=True, blank=True)
     director_name = models.CharField(_('Director'),choices=DIRECTOR_NAME_CHOICES,max_length=255,default='1')
@@ -280,22 +307,12 @@ class Contract(models.Model):
     
     class Meta:
         db_table = 'contracts'
-        verbose_name = _('finance contract')
-        verbose_name_plural = _('finance contracts')
+        verbose_name = _('contract')
+        verbose_name_plural = _('contracts')
 
     def __str__(self):
-        return f'Contract {self.id} for {self.consultant} by {self.client} '
+        return f'Contract {self.id} for {self.consultant} by {self.client} '    
     
-    # @property
-    # def contract_duration(self):
-    #     """
-    #     Calculate the duration of the contract in days.
-    #     """
-    #     if self.end_date and self.start_date:
-    #         duration_in_days = (self.end_date - self.start_date).days
-    #         duration_in_months = round(duration_in_days / 30)  # Approximate to months
-    #         return duration_in_months
-    #     return None
     
     @property
     def total_working_hours(self):
@@ -336,9 +353,143 @@ class Contract(models.Model):
         if self.second_fee_percentage is not None and self.client_amount is not None:
             return (self.second_fee_percentage / 100) * self.client_amount
         return 0  # or None, based on your requirements
-
     
 
-# ProjectRenewal
-# renewal_count = models.IntegerField(_("Number of times renewed")) # ask aboli - where should we keep the renewal count
+class ConsultantInvoice(models.Model):
+    contract = models.ForeignKey("finance.Contract", on_delete=models.CASCADE)   
+    invoice_number = models.CharField(_("Invoice Number"), max_length=125, null=True, blank=True)
+    work_description_type = models.CharField(_("Work Description Type"),choices=WORK_DESCRIPTION_TYPES,max_length=255,default='1')
+    signature = models.ImageField(_("Signature"),upload_to='consultant/signatures/', null=True, blank=True)
+    time_sheet_from = models.DateField(_("Timesheet From"))
+    time_sheet_to = models.DateField(_("Timesheet To"))
+    time_sheet_hours = models.PositiveIntegerField(_("Timesheet Hours")) 
+    status = models.CharField(_('Status'),choices=CONSULTANT_INVOICE_STATUS,max_length=255,default='1')
+    
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)    
+    class Meta:
+        db_table = 'consultant_invoices'
+        verbose_name = _('Consultant Invoice')
+        verbose_name_plural = _('Consultant Invoices')
 
+    
+    def __str__(self):
+        return f'Invoice {self.id} for {self.contract.consultant.candidate.first_name} {self.contract.consultant.candidate.last_name}'
+
+
+class ClientInvoice(models.Model):
+    contract = models.ForeignKey("finance.Contract", on_delete=models.CASCADE)   
+    terms_of_payment = models.CharField(_("Terms of Payment"), choices=TERMS_OF_PAYMENT,max_length=255,default='1')
+    description_of_services = models.CharField(_('Description Of Services'),choices=SERVICE_CHOICES,max_length=255,default='1')
+    status = models.CharField(_('Status'),choices=CLIENT_INVOICE_STATUS,max_length=255,default='1')
+    invoice_number = models.CharField(max_length=255, unique=True, blank=True)
+    is_digital_signature_required = models.BooleanField(default=False)
+    
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    class Meta:
+        db_table = 'client_invoices'
+        verbose_name = _('Client Invoice')
+        verbose_name_plural = _('Client Invoices')
+
+    
+    def __str__(self):
+        return f'Invoice {self.id} for {self.contract.client.employer.user.first_name} {self.contract.client.employer.user.last_name}'
+    
+    @staticmethod
+    def generate_invoice_number():
+        """Generates a unique invoice number in the format YY-YY/FB/NNN."""
+        current_date = now()
+        current_year = current_date.year
+        
+        # Determine financial year start and end
+        if current_date.month < 4:  # Before April, part of the previous financial year
+            start_year = current_year - 1
+            end_year = current_year
+        else:  # From April onwards, part of the current financial year
+            start_year = current_year
+            end_year = current_year + 1
+
+        # Create the financial year prefix
+        prefix = f"{str(start_year)[-2:]}-{str(end_year)[-2:]}/FB/"
+        
+        # Get the last invoice for the current fiscal year
+        last_invoice = ClientInvoice.objects.filter(invoice_number__startswith=prefix).order_by('-invoice_number').first()
+        
+        if last_invoice:
+            # Extract the last invoice number and increment
+            last_number = int(last_invoice.invoice_number.split('/')[-1])
+            new_number = f"{last_number + 1:03}"
+        else:
+            # Start with 001 if no invoices exist
+            new_number = "001"
+
+        return f"{prefix}{new_number}"
+
+    def save(self, *args, **kwargs):
+        """Override save to auto-generate the invoice number if not provided."""
+        if not self.invoice_number:
+            self.invoice_number = self.generate_invoice_number()
+        super().save(*args, **kwargs)
+    
+    @property
+    def is_india(self):
+        """Checks if the client is in India."""
+        return self.contract.client.employer.company.country.name.lower() == "india"
+    
+    @property
+    def is_maharashtra(self):
+        """Checks if the client is in Maharashtra."""
+        return self.contract.client.state.lower() == "maharashtra"
+    
+    @property
+    def calculate_tax_rates(self):
+        """Determine applicable tax rates."""
+        if not self.is_india:
+            return {'sgst': None, 'cgst': None, 'igst': None}
+
+        if self.is_maharashtra:
+            return {'sgst': 9, 'cgst': 9, 'igst': 0}
+        return {'sgst': 0, 'cgst': 0, 'igst': 18}
+    
+    @property
+    def sgst(self):
+        """Calculate SGST amount."""
+        return (self.calculate_tax_rates['sgst'])
+
+    @property
+    def cgst(self):
+        """Calculate CGST amount."""
+        return (self.calculate_tax_rates['cgst'])
+
+    @property
+    def igst(self):
+        """Calculate IGST amount."""
+        return (self.calculate_tax_rates['igst'])
+    
+    @property
+    def calculate_sgst_amount(self):
+        client_amount = self.contract.client_amount
+        return (self.calculate_tax_rates['sgst'] / 100) * client_amount
+    
+    @property
+    def calculate_cgst_amount(self):
+        client_amount = self.contract.client_amount
+        return (self.calculate_tax_rates['cgst'] / 100) * client_amount
+    
+    @property
+    def calculate_igst_amount(self):
+        client_amount = self.contract.client_amount
+        return (self.calculate_tax_rates['igst'] / 100) * client_amount
+    
+    @property
+    def calculate_total_tax_amount(self):
+        """Calculate the total tax amount based on the location of the client."""
+        if not self.is_india:
+            return 0  # No taxes for non-India clients
+        return self.calculate_sgst_amount + self.calculate_cgst_amount + self.calculate_igst_amount
+    
+    @property
+    def calculate_total_amount(self):
+        client_amount = self.contract.client_amount
+        return client_amount + self.calculate_total_tax_amount

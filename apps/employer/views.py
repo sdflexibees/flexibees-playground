@@ -80,6 +80,7 @@ class EmployerSignUpLoginViewset(ModelViewSet):
         if not user_type:
             return Response(message_response(something_went_wrong), status=status.HTTP_404_NOT_FOUND)
         otp = generate_otp()
+        print("Employer login otp ",otp)
         user = Users.objects.create(email=email, is_active=False, first_name=first_name, last_name=last_name, otp=make_password(otp), type=user_type)
         employer = Employer.objects.create(user=user, is_active=False)
         subject='Email Verification'

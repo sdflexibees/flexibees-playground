@@ -3,6 +3,7 @@ from django.urls import path
 from apps.employer.views import EmployerSignUpLoginViewset, EmployerViewSet, IndividualJobDeatils, JobListViewSet, JobViewSet
 
 urlpatterns = [
+    path('signup/', EmployerSignUpLoginViewset.as_view({'post': 'signUp'})),
     path('login/', EmployerSignUpLoginViewset.as_view({'post': 'login'})),
     path('verify/', EmployerSignUpLoginViewset.as_view({'post': 'verify_otp'})),
     path("jobs/list",JobViewSet.as_view({"post":"list"})),

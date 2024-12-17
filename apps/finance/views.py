@@ -7,14 +7,15 @@ from apps.common.models import UserType, Users
 from apps.employer.models import Employer
 from apps.employer.permission_class import EmployerAuthentication
 from apps.finance.tasks import send_mail_contract
+from config import settings
 from core.api_permissions import AdminAuthentication, AppUserAuthentication
 from core.response_format import message_response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from apps.finance.models import BankAccount, Client, Consultant, Contract, SocialMedia
-from apps.finance.serializers import BankAccountListSerializer, BankAccountSerializer, ClientSerializer, ContractListSerializer, ContractSerializer, ConsultantListSerializer, ConsultantSerializer, SocialMediaListSerializer, SocialMediaSerializer
-
+from apps.finance.models import BankAccount, Client, ClientInvoice, Consultant, ConsultantInvoice, Contract, SocialMedia
+from apps.finance.serializers import BankAccountListSerializer, BankAccountSerializer, ClientInvoiceSerializer, ClientSerializer, ConsultantInvoiceSerializer, ContractListSerializer, ContractSerializer, ConsultantListSerializer, ConsultantSerializer, SocialMediaListSerializer, SocialMediaSerializer
+from num2words import num2words
 from django.template.loader import get_template, render_to_string
 from xhtml2pdf import pisa
 from django.http import HttpResponse
@@ -312,11 +313,16 @@ class ClientAPI(ModelViewSet):
         serializer = ClientSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             try:
-                user=request.user
-                employer = Employer.objects.get(user=user)
-                social_media = SocialMedia.objects.get(user=user)
+                try:
+                    user = Users.objects.get(email=request.user)
+                    employer = Employer.objects.get(user=user)
+                except Employer.DoesNotExist:
+                    return Response(
+                        {"error": "Employer matching the authenticated user does not exist."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
                 # Save client with the associated employer
-                serializer.save(employer=employer,social_media=social_media)
+                serializer.save(employer=employer)
                 return Response({"message": "Client created successfully"}, status=status.HTTP_201_CREATED)
 
             except ValidationError as e:
@@ -341,20 +347,14 @@ class ClientAPI(ModelViewSet):
         client.active = False
         client.save()
         return Response(message_response("Client deactivated successfully"), status=200)
-    
+
 
 class ConsultantAPI(ModelViewSet):
-    # permission_classes = [AdminAuthentication]
+    permission_classes = [AppUserAuthentication]
     serializer_class = ConsultantSerializer
 
     def get_queryset(self):
         return Consultant.objects.all().order_by('-id')
-
-    @swagger_auto_schema(operation_description='List all active consultants')
-    def list(self, request):
-        queryset = self.get_queryset()
-        serializer = ConsultantListSerializer(queryset, many=True)
-        return Response(serializer.data)
 
     @swagger_auto_schema(operation_description='Retrieve consultant details by ID')
     def retrieve(self, request, pk=None):
@@ -367,7 +367,8 @@ class ConsultantAPI(ModelViewSet):
         serializer = ConsultantSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             try:
-                candidate = serializer.validated_data['candidate']
+                user = request.user
+                candidate = get_object_or_404(Candidate, id=user.id, active=True) 
                 # Validate if candidate is active and status is '17'
                 if not candidate.active or candidate.status != '17':
                     return Response({"error": "Candidate is either inactive or does not meet status requirements."}, status=status.HTTP_400_BAD_REQUEST)                
@@ -402,9 +403,9 @@ class ConsultantAPI(ModelViewSet):
                         new_user.set_password(candidate.password)
                         new_user.save()
                         print("new user saved")
-                        user = new_user
+                        # user = new_user
                 # Save consultant with the associated user
-                serializer.save(user=user)
+                serializer.save(candidate=candidate)
                 return Response({"message": "Consultant created successfully"}, status=status.HTTP_201_CREATED)
 
             except ValidationError as e:
@@ -429,6 +430,27 @@ class ConsultantAPI(ModelViewSet):
         consultant.active = False
         consultant.save()
         return Response(message_response("Consultant deactivated successfully"), status=200)
+
+
+
+class ConsultantListAPI(ModelViewSet):
+    # permission_classes = [AdminAuthentication]
+    serializer_class = ConsultantSerializer
+
+    def get_queryset(self):
+        return Consultant.objects.all().order_by('-id')
+
+    @swagger_auto_schema(operation_description='List all active consultants')
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = ConsultantListSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(operation_description='Retrieve consultant details by ID')
+    def retrieve(self, request, pk=None):
+        consultant = get_object_or_404(Consultant, id=pk, active=True)
+        serializer = ConsultantSerializer(consultant)
+        return Response(serializer.data)
 
 
 class ContractAPI(ModelViewSet):
@@ -478,14 +500,8 @@ class ContractAPI(ModelViewSet):
 def render_to_pdf(template_src, context_dict, filename):
     template = get_template(template_src)
     html_content = template.render(context_dict)
-    # response = HttpResponse(content_type='application/pdf')
-    # pisa_status = pisa.CreatePDF(html_content, dest=response)
-    
-    # if pisa_status.err:
-    #     return HttpResponse('We had some errors while generating the PDF.', status=500)
-    # Create a PDF from the rendered HTML content
     pdf_file = HTML(string=html_content).write_pdf()
-
+    
     # Serve the PDF as a downloadable file
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{filename}"'
@@ -509,25 +525,11 @@ class GenerateConsultantContractPDF(View):
             template_name = 'contracts/consultant/internal_consultant_non_bdm.html'
             filename = f"{contract.consultant.candidate.first_name}_{contract.consultant.candidate.last_name}_FlexiBees_Agreement & NDA.pdf"
         
-        user = contract.consultant.user
-        print("consultant user ",user)
+        user = Users.objects.get(email=contract.consultant.candidate.email)
         bank_account = BankAccount.objects.get(user=user)
         # Prepare the context for rendering the PDF
         context = {
-            'candidate': contract.consultant.candidate,
-            'client':contract.client,
-            'client_name': contract.job.employer.user.first_name,
-            'consultant_amount': contract.consultant_amount,
-            'candidate_address': contract.consultant.candidate.address,
-            'candidate_email': contract.consultant.candidate.email,
-            'contract_date': contract.created,
             'bank_account':bank_account,
-            'job': contract.job,
-            'contract_date': contract.created,
-            'notice_period':contract.notice_period,
-            'bdm_gross_margin_commission_percentage':contract.bdm_gross_margin_commission_percentage,
-            'bdm_lifetime_commission_percentage':contract.bdm_lifetime_commission_percentage,
-            'contract':contract,
             'director_name_display': contract.get_director_name_display(),
             
         }
@@ -608,4 +610,170 @@ class EmailConsultantContractView(View):
             return Response({"message": "Email sent successfully"}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
+
+
+class ConsultantInvoiceAPI(ModelViewSet):
+    permission_classes = [AppUserAuthentication]
+    serializer_class = ConsultantInvoiceSerializer
+    
+    @swagger_auto_schema(operation_description='Retrieve consultant invoice details by ID')
+    def retrieve(self, request, pk=None):
+        contract = get_object_or_404(ConsultantInvoice, id=pk, active=True)
+        serializer = ConsultantInvoiceSerializer(contract)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(request_body=ConsultantInvoiceSerializer, operation_description='Create a new consultant invoice')
+    def create(self, request):
+        user = request.user  # Get the logged-in user
+        consultant = get_object_or_404(Candidate, id=user.id, active=True)  
+        serializer = ConsultantInvoiceSerializer(data=request.data, context={'request': request, 'consultant': consultant})
+        if serializer.is_valid():  
+            serializer.save()
+            return Response({"message": "Consultant Invoice created successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=400)
+
+    @swagger_auto_schema(request_body=ConsultantInvoiceSerializer, operation_description='Update consultant invoice details')
+    def update(self, request, pk=None):
+        invoice = get_object_or_404(ConsultantInvoice, id=pk, active=True)
+        serializer = ConsultantInvoiceSerializer(invoice, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save(candidate=self.request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)    
+
+    @swagger_auto_schema(operation_description='Deactivate consultant invoice')
+    def destroy(self, request, pk=None):
+        invoice = get_object_or_404(ConsultantInvoice, id=pk, active=True)
+        invoice.active = False
+        invoice.save()
+        return Response({"message": "Consultant Invoice deactivated successfully"}, status=200)
+
+
+class ConsultantInvoiceListAPI(ModelViewSet):
+    # permission_classes = [AdminAuthentication]
+    serializer_class = ConsultantInvoiceSerializer
+
+    def get_queryset(self):
+        return ConsultantInvoice.objects.all().order_by('-id')
+
+    @swagger_auto_schema(operation_description='List all active consultant invoices')
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = ConsultantInvoiceSerializer(queryset, many=True)
+        return Response(serializer.data)    
+    
+    @swagger_auto_schema(operation_description='Retrieve consultant invoice details by ID')
+    def retrieve(self, request, pk=None):
+        contract = get_object_or_404(ConsultantInvoice, id=pk, active=True)
+        serializer = ConsultantInvoiceSerializer(contract)
+        return Response(serializer.data)
+
+
+class GenerateConsultantInvoicePDF(View):
+    def get(self, request, pk=None):
+        # Fetch the contract instance
+        invoice = get_object_or_404(ConsultantInvoice, id=pk)
+        
+        amount_in_words = num2words(invoice.contract.consultant_aggregate_amount, lang='en').capitalize()
+        consultant_email = invoice.contract.consultant.candidate.email
+        user = Users.objects.get(email=consultant_email)
+        bank_account = BankAccount.objects.get(user=user)
+        # Format the created date to show month and year
+        formatted_date = invoice.created.strftime('%B_%Y')  # Example: "November_2024"
+        
+        template_name = 'invoices/consultant/Consultant_Invoice.html'
+
+        # Define the filename for the client contract
+        filename = (f"{invoice.contract.consultant.candidate.first_name}_{invoice.contract.consultant.candidate.last_name}_Consultant Invoice_"
+                    f"{formatted_date}.pdf")
+        
+        signature_url = request.build_absolute_uri(invoice.signature.url)
+        print("signature_url ",signature_url)
+        # Prepare the context for rendering the PDF
+        context = {
+            'invoice': invoice,
+            'bank_account': bank_account,
+            "amount_in_words": amount_in_words,
+            'signature_url': signature_url
+        }
+
+        # Render the selected template to PDF
+        return render_to_pdf(template_name, context, filename) 
+
+class ClientInvoiceAPI(ModelViewSet):
+    # permission_classes = [AdminAuthentication]
+    serializer_class = ClientInvoiceSerializer
+
+    def get_queryset(self):
+        return ClientInvoice.objects.all().order_by('-id')
+    
+    @swagger_auto_schema(operation_description='List all active client invoices')
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = ClientInvoiceSerializer(queryset, many=True)
+        return Response(serializer.data)    
+    
+    @swagger_auto_schema(operation_description='Retrieve client invoice details by ID')
+    def retrieve(self, request, pk=None):
+        contract = get_object_or_404(ClientInvoice, id=pk, active=True)
+        serializer = ClientInvoiceSerializer(contract)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(request_body=ClientInvoiceSerializer, operation_description='Create a new client invoice')
+    def create(self, request):
+        serializer = ClientInvoiceSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():  
+            serializer.save()
+            return Response({"message": "Client Invoice created successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=400)
+
+    @swagger_auto_schema(request_body=ClientInvoiceSerializer, operation_description='Update client invoice details')
+    def update(self, request, pk=None):
+        invoice = get_object_or_404(ClientInvoice, id=pk, active=True)
+        serializer = ClientInvoiceSerializer(invoice, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save(candidate=self.request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)    
+
+    @swagger_auto_schema(operation_description='Deactivate client invoice')
+    def destroy(self, request, pk=None):
+        invoice = get_object_or_404(ClientInvoice, id=pk, active=True)
+        invoice.active = False
+        invoice.save()
+        return Response({"message": "Client Invoice deactivated successfully"}, status=200)
+
+
+
+class GenerateClientInvoicePDF(View):
+    def get(self, request, pk=None):
+        # Fetch the invoice instance
+        invoice = get_object_or_404(ClientInvoice, id=pk)
+        tax_amount_in_words = num2words(invoice.calculate_total_tax_amount, lang='en').capitalize()
+        amount_in_words = num2words(invoice.calculate_total_amount, lang='en').capitalize()
+        # Format the created date to show month and year
+        formatted_date = invoice.created.strftime('%B_%Y')  # Example: "November_2024"
+        
+        template_name = 'invoices/client/client_invoice.html'
+
+        # Define the filename for the client contract
+        filename = (f"{invoice.contract.client.employer.user.first_name}_{invoice.contract.client.employer.user.last_name}_Client Invoice_"
+                    f"{formatted_date}.pdf")
+        # if invoice.signature:
+        #     signature_url = request.build_absolute_uri(invoice.signature.url)
+        #     print("signature_url ",signature_url)
+        # else:
+        #     signature_url ="None"
+        # Prepare the context for rendering the PDF
+        context = {
+            'invoice': invoice,
+            "amount_in_words": amount_in_words,
+            'tax_amount_in_words': tax_amount_in_words,
+            'terms_of_payment': invoice.get_terms_of_payment_display(),
+            'description_of_services':invoice.get_description_of_services_display()
+        }
+
+        # Render the selected template to PDF
+        return render_to_pdf(template_name, context, filename) 
+
