@@ -1,7 +1,6 @@
 from rest_framework import serializers
+from apps.finance.models import BankAccount, Client, ClientInvoice, Consultant, ConsultantInvoice, Contract, SocialMedia
 
-from apps.candidate.models import Candidate
-from apps.finance.models import BankAccount, Client, Consultant, Contract, SocialMedia
 
 class SocialMediaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -77,6 +76,7 @@ class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         exclude = [
+            'employer',
             'active',
             'created',
             'modified'
@@ -86,7 +86,6 @@ class ConsultantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consultant
         fields = [
-            'candidate',
             'alt_contact_person_name', 
             'alt_contact_person_number',
             'alt_contact_person_relation'
@@ -109,14 +108,14 @@ class ContractSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contract
         fields = [
-            'consultant', 'project', 'job', 
+            'consultant', 'project', 'job', 'client',
             'consultant_amount', 'consultant_aggregate_amount','client_amount',
             'consultant_contract_type', 'client_contract_type','notice_period',
-            'start_date', 'end_date', 'signatory_designation',
-            'food_allowance', 'travel_allowance', 'phone_allowance', 'other_allowance',
+            'signatory_designation',
             'bdm_gross_margin_commission_percentage', 'bdm_lifetime_commission_percentage',
             'director_name', 'director_email',
-            'working_hours_per_day','working_days_in_a_week','paid_leaves'        ]
+            'working_hours_per_day','working_days_in_a_week','paid_leaves'        
+        ]
         
         
 class ContractListSerializer(serializers.ModelSerializer):
@@ -127,7 +126,7 @@ class ContractListSerializer(serializers.ModelSerializer):
     client_contract_type_name = serializers.SerializerMethodField()
     class Meta:
         model = Contract
-        fields = ['id', 'consultant_name', 'project_name','job_details', 'consultant_contract_type_name', 'client_contract_type_name','start_date', 'end_date', 'consultant_amount', 'client_amount','signatory_designation']
+        fields = ['id', 'consultant_name', 'project_name','job_details', 'consultant_contract_type_name', 'client_contract_type_name','consultant_amount', 'client_amount','signatory_designation']
     
     def get_consultant_name(self, obj):
         full_name = f"{obj.consultant.candidate.first_name} {obj.consultant.candidate.last_name}"  # Concatenate first and last names
@@ -145,3 +144,29 @@ class ContractListSerializer(serializers.ModelSerializer):
         # This will return the display value of client_contract_type
         return obj.get_client_contract_type_display()
 
+class ConsultantInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConsultantInvoice
+        fields = [
+            'contract', 'invoice_number', 'work_description_type',
+            'signature', 'time_sheet_from',
+            'time_sheet_to', 'time_sheet_hours'
+        ]
+    def __init__(self, *args, **kwargs):
+        # Extract the consultant from the serializer context
+        consultant = kwargs.pop('consultant', None)
+        super().__init__(*args, **kwargs)
+
+        if consultant:
+            # Filter contracts to show only those related to the consultant
+            self.fields['contract'].queryset = Contract.objects.filter(consultant=consultant)
+    
+    
+class ClientInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientInvoice
+        fields = [
+            'contract', 
+            'terms_of_payment', 'description_of_services',
+            'is_digital_signature_required'
+        ]
