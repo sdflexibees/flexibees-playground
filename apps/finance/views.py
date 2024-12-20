@@ -6,7 +6,7 @@ from apps.candidate.models import Candidate
 from apps.common.models import UserType, Users
 from apps.employer.models import Employer
 from apps.employer.permission_class import EmployerAuthentication
-from apps.finance.tasks import send_mail_contract
+# from apps.finance.tasks import send_mail_contract
 from config import settings
 from core.api_permissions import AdminAuthentication, AppUserAuthentication
 from core.response_format import message_response

@@ -84,7 +84,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'flexibees_finance.wsgi.application'
 
-ASGI_APPLICATION = 'flexibees_finance.asgi.application'
+ASGI_APPLICATION = 'flexibees_finance.routing.application'
 
 CHANNEL_LAYERS = {
     'default': {
@@ -137,7 +137,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
-STATIC_ROOT = os.path.join(BASE_DIR, "static_files")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 SWAGGER_SETTINGS = {
    'SECURITY_DEFINITIONS': {

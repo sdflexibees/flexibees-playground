@@ -1,47 +1,19 @@
+version: "3.8"
+
 services:
   app:
     build: .
-    container_name: bed-prod-server
+    container_name: dev-app-server
     restart: always
     ports:
       - "8000:8000"
-    command:
-      "daphne -b 0.0.0.0 -p 8000 flexibees_finance.routing:application"
+    command: "gunicorn flexibees_finance.wsgi:application --bind 0.0.0.0:8000"
     volumes:
-      - .:/usr/src/app
+      - .:/app
+      - static_volume:/app/flexibees_finance/staticfiles
+
     depends_on:
       - redis
-  gunapp:
-    build: .
-    container_name: bed-gun-prod-server
-    restart: always
-    ports:
-      - "8001:8001"
-    command:
-      "gunicorn --workers=2 --bind=0.0.0.0:8001 flexibees_finance.wsgi:application"
-    volumes:
-      - .:/usr/src/app
-  crmapp:
-    build: .
-    container_name: bed-crm-prod-server
-    restart: always
-    ports:
-      - "8002:8002"
-    command:
-      "gunicorn --workers=2 --timeout 300 --bind=0.0.0.0:8002 flexibees_finance.wsgi:application"
-    volumes:
-      - .:/usr/src/app
-
-  nginx:
-    image: nginx:latest
-    container_name: webserver-api-prod
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx:/etc/nginx/conf.d
-    depends_on:
-      - app
 
   redis:
     restart: always
@@ -52,3 +24,5 @@ services:
 
 volumes:
   redisdata:
+  static_volume: {}  
+
